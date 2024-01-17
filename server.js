@@ -10,7 +10,7 @@ app.use(express.json())
 
 // app.get ---------------------------------------------------
 app.get("/", (req, res) => {
-  res.send("asd")
+  res.send("asdf")
 })
 
 app.listen(port, () => {
