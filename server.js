@@ -1,16 +1,17 @@
 const express = require("express")
 const path = require("path")
-
+const session = require('express-session')
 const app = express()
 const port = 3000
-
+const acconutApi = require('./router/account.provider')
 
 // app.use ---------------------------------------------------
 app.use(express.json())
+app.use('/', acconutApi);
 
 // app.get ---------------------------------------------------
 app.get("/", (req, res) => {
-  res.send("asd")
+  res.send("asd");
 })
 
 app.listen(port, () => {
