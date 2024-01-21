@@ -1,11 +1,7 @@
-const getUser = `
+const getKakaoUserByEmail = `
     SELECT * 
     FROM kakao_login 
     WHERE email = ?
-`;
-const userLogin = `
-    INSERT INTO kakao_login (id,email,access_token)
-    VALUE (?)
 `;
 const kakaoRegister = `
     INSERT INTO kakao_login (email, id)
@@ -22,8 +18,7 @@ const userRegister = `
 `
 
 module.exports = {
-    getUser: getUser,
-    userLogin: userLogin,
+    getKakaoUserByEmail: getKakaoUserByEmail,
     kakaoRegister: kakaoRegister,
     findUserByEmail: findUserByEmail,
     userRegister: userRegister

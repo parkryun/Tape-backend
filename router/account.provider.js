@@ -1,13 +1,17 @@
 const express = require('express')
 const router = express.Router();
+
 const passport = require('passport');
+const session = require('express-session');
+const multer = require('multer'); //이미지
 const KakaoStrategy = require('passport-kakao').Strategy;
+
 const db = require('../data/database');
 const query = require('./account.sql');
-const session = require('express-session');
-const multer = require('multer');
 require("dotenv").config(); //환경변수
 
+
+//session 설정
 router.use(session({
     secret: 'super-secret',
     resave: false,
@@ -17,6 +21,7 @@ router.use(session({
 router.use(passport.initialize());
 router.use(passport.session());
 
+//이미지 저장 방식 설정
 const storageConfig = multer.diskStorage({
   destination: function(req,file,cb){
     cb(null, 'images');
@@ -29,9 +34,7 @@ const upload = multer({storage: storageConfig});
 
 
 //passport 설정
-passport.use(
-    'kakao',
-    new KakaoStrategy(
+passport.use('kakao', new KakaoStrategy(
         {
             clientID: process.env.KAKAO_RESTAPI_KEY,
             callbackURL: '/kakao/callback',
@@ -40,29 +43,27 @@ passport.use(
             // console.log('kakao profile', profile);
             // console.log(accessToken)
             // console.log(refreshToken)
+            const email = profile._json.kakao_account.email;//로그인한 사용자 email
+            const id = profile._json.id; //카카오에서 설정된 id
             try{
-                const email = profile._json.kakao_account.email;
-                const user = await db.query(query.getUser, email);
-                if(user[0].length!==0){
-                    done(null, user[0][0]);
-                } else {
-                    await db.query(query.kakaoRegister, [email, profile.id]);
-                    const newUser = await db.query(query.getUser, email);
-                    done(null, newUser[0][0]);
+                const user = await db.query(query.getKakaoUserByEmail, email);
+                if(user[0].length===0){ //처음 카카오 로그인 시
+                    await db.query(query.kakaoRegister, [email, id]);
                 }
+                done(null, {email: email, id: id}); //사용자 인증 성공 -> serializeUser 실행
             }catch(error){
                 console.log(error);
             }
         }
     )
 )
-passport.serializeUser(function (user, done) {
-    // console.log("serializerUser 호출");
+passport.serializeUser(function (user, done) { //사용자 인증 성공시 호출
+    console.log("serializerUser 호출");
     done(null, user.email);
 });
-passport.deserializeUser(async function (email, done) {
-    // console.log("deserializeUser 호출");
-    const user = await db.query(query.findUserByEmail, email);
+passport.deserializeUser(async function (email, done) { //인증 이후 요청시마다 호출
+    console.log("deserializeUser 호출");
+    const user = await db.query(query.getKakaoUserByEmail, email);
     done(null, user[0]);
 });
 
@@ -72,23 +73,23 @@ passport.deserializeUser(async function (email, done) {
 router.get('/kakao',passport.authenticate('kakao')); 
 
 //회원가입 여부 판단
-router.get('/kakao/callback',
-    passport.authenticate('kakao'), async (req,res) => {
+router.get('/kakao/callback', passport.authenticate('kakao'), async (req,res) => {
         const user = await db.query(query.findUserByEmail, req.user.id);
         if(user[0].length!==0){ //tape에 가입한 유저
             res.redirect('/tape');
         } else { //tape에 가입해야하는 유저
-            res.redirect('/account/register');
+            res.redirect('/account/nickname');
         }
     }
 )
 
 //닉네임 작성 창 가져오기
 router.get('/account/nickname', (req,res)=>{
+    // console.log(req.user[0]);
     res.send("/account/nickname page");
 });
 
-//닉네임 조건
+//닉네임 유효성 검사
 router.post('/account/nickname', async (req,res)=>{
     const regex = /^[A-Za-z0-9._]+$/;
     const nickname = req.body.nickname;
@@ -101,7 +102,7 @@ router.post('/account/nickname', async (req,res)=>{
         }
         req.session.save(()=>{res.redirect('/account/nickname');});
     }
-    if(nickname.trim()>20){ // 닉네임 길이 최대 제한 초과
+    if(nickname.trim().length>20){ // 닉네임 길이 최대 제한 초과
         req.session.inputData = {
             hasError: true,
             message: '사용자 이름은 20자 이내로 작성해주세요.',
@@ -136,6 +137,7 @@ router.get('/account/profile',(req,res)=>{
 router.post('/account/profile', upload.single('image'), async (req,res)=>{
     const profileImage = req.file;
     const introduce = req.body.introduce;
+
     if(introduce.length>150){ //소개문 글자수 초과
         req.session.inputData = {
             hasError: true,
@@ -156,6 +158,5 @@ router.post('/account/profile', upload.single('image'), async (req,res)=>{
 
     res.redirect('/tape');
 });
-
 
 module.exports = router;
