@@ -1,0 +1,1 @@
+export const getAlarm = "SELECT * FROM tape_alarm WHERE = $1"

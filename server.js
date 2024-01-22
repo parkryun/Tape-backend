@@ -4,13 +4,15 @@ const path = require("path")
 const app = express()
 const port = 3000
 
+const alarmApi = require("./router/alarm.js")
 
 // app.use ---------------------------------------------------
 app.use(express.json())
+app.use("/alarm", alarmApi)
 
 // app.get ---------------------------------------------------
 app.get("/", (req, res) => {
-  res.send("asd")
+  res.send("asdf")
 })
 
 app.listen(port, () => {
