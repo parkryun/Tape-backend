@@ -4,7 +4,7 @@ const getKakaoUserByEmail = `
     WHERE email = ?
 `;
 const kakaoRegister = `
-    INSERT INTO kakao_login (email, id, accessToken)
+    INSERT INTO kakao_login (email, id, access_token)
     VALUE (?,?,?)
 `;
 const findUserByEmail = `
@@ -18,7 +18,7 @@ const findUserByNickname = `
     WHERE Nickname = ?
 `;
 const userRegister = `
-    INSERT INTO user (email, nickname, profileImageUrl, introduce, created_at, updated_at, is_deacitved)
+    INSERT INTO user (email, nickname, profileImageUrl, introduce, created_at, updated_at, is_deactived)
     VALUE (?,?,?,?,?,?,?)    
 `
 
