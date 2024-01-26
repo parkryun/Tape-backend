@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 // app.use ---------------------------------------------------
 app.use(express.urlencoded({extended:false}));
 app.use(express.json())
-app.use('/', acconutApi);
+app.use('/account', acconutApi);
 
 // app.get ---------------------------------------------------
 

@@ -41,7 +41,7 @@ const upload = multer({storage: storageConfig});
 passport.use('kakao', new KakaoStrategy(
         {
             clientID: process.env.KAKAO_RESTAPI_KEY,
-            callbackURL: '/kakao/callback',
+            callbackURL: '/account/kakao/callback',
         },
         async (accessToken, refreshToken, profile, done) => {        
             const email = profile._json.kakao_account.email;//로그인한 사용자 email
@@ -75,17 +75,16 @@ router.get('/kakao/callback', passport.authenticate('kakao',{session:false}), as
                 uid: getUserId[0][0].user_id,
             }
             res.cookie("TAPE", jwt.sign(data,process.env.JWT_SECRET_KEY));
-            res.redirect('/tape');
+            res.redirect('/account/tape');
         } else { //tape에 가입해야하는 유저
             res.cookie("userData", jwt.sign(userData,process.env.JWT_SECRET_KEY));
             res.redirect('/account/nickname');
         }
         return;
-    }
-)
+});
 
 //닉네임 작성 창 가져오기
-router.get('/account/nickname', (req,res)=>{
+router.get('/nickname', (req,res)=>{
     console.log("cookie : ", jwt.verify(req.cookies.userData,process.env.JWT_SECRET_KEY));
     const nicknameForm = `
         <form action="/account/nickname" method="POST">
@@ -98,7 +97,7 @@ router.get('/account/nickname', (req,res)=>{
 });
 
 //닉네임 유효성 검사
-router.post('/account/nickname', async (req,res)=>{
+router.post('/nickname', async (req,res)=>{
     const regex = /^[A-Za-z0-9._]+$/;
     const nickname = req.body.nickname;
     const existingUser = await db.query(query.findUserByNickname, nickname);
@@ -144,7 +143,7 @@ router.post('/account/nickname', async (req,res)=>{
 });
 
 //프로필 작성 창 가져오기
-router.get('/account/profile',(req,res)=>{
+router.get('/profile',(req,res)=>{
     console.log("cookie : ", jwt.verify(req.cookies.userData, process.env.JWT_SECRET_KEY));
     const userInputForm = `
         <form action="/account/profile" method="POST" enctype="multipart/form-data">
@@ -159,7 +158,7 @@ router.get('/account/profile',(req,res)=>{
 }); 
 
 //프로필 저장 및 회원가입
-router.post('/account/profile', upload.single('image'), async (req,res)=>{
+router.post('/profile', upload.single('image'), async (req,res)=>{
     const profileImage = req.file;
     const profileImageUrl = profileImage ? profileImage.path : null;
     const introduce = req.body.introduce;
@@ -177,6 +176,7 @@ router.post('/account/profile', upload.single('image'), async (req,res)=>{
     res.clearCookie("signin");
 
     const userData = jwt.verify(req.cookies.userData, process.env.JWT_SECRET_KEY);
+    res.clearCookie("userData");
 
     const userInfo = {
         email: userData.email,
@@ -187,7 +187,6 @@ router.post('/account/profile', upload.single('image'), async (req,res)=>{
         updated_at: new Date(),
         is_deactived: 1,
     }
-    console.log("userInfo : ", userInfo);
 
     await db.query(query.userRegister, Object.values(userInfo));
 
@@ -198,16 +197,19 @@ router.post('/account/profile', upload.single('image'), async (req,res)=>{
         uid: getUserId[0][0].user_id,
     }
     res.cookie("TAPE", jwt.sign(data,process.env.JWT_SECRET_KEY));
-    res.redirect('/tape');
+    res.redirect('/account/tape');
     return;
 });
+
+
+/** -------------- test --------------- */
 
 router.get('/tape',(req,res)=>{
     console.log(jwt.verify(req.cookies.TAPE, process.env.JWT_SECRET_KEY));
     res.send('tape main page');
-})
+});
 
-router.get("/test", (req, res) => {
+router.get("/cookie-test", (req, res) => {
     const payload = { //value
       isAuth: true,
       uid: 'test'
@@ -218,7 +220,7 @@ router.get("/test", (req, res) => {
     console.log(token);
     const decoded = jwt.verify(token,secretKey); //token 디코딩
     console.log(decoded);
-    res.send("tset page");
+    res.send("test page");
 });
 
 module.exports = router;
