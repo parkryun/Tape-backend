@@ -33,6 +33,14 @@ const getTodayTapeWithMusic = `
   WHERE t.id = ?  // 혹은 오늘 날짜를 기준으로 조회하는 조건을 추가할 수 있습니다.
 `;
 
+// 특정 tape ID에 해당하는 상세 데이터를 조회하는 쿼리문
+const getTapeDetailsById = `
+  SELECT tape.*, tm.music_id, tm.content as music_content
+  FROM tape
+  LEFT JOIN tape_music tm ON tape.id = tm.tape_id
+  WHERE tape.id = ?
+`;
+
 // 내보낼 쿼리문들을 객체로 정리
 module.exports = {
   insertTape,
