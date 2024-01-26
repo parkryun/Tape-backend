@@ -69,10 +69,9 @@ router.get('/kakao/callback', passport.authenticate('kakao',{session:false}), as
             email : req.user.email,
         };
         if(user[0].length!==0){ //tape에 가입한 유저
-            const getUserId = await db.query(query.findUserByEmail, userData.email);
             const data = {
                 isAuth: true,
-                uid: getUserId[0][0].user_id,
+                uid: user[0][0].user_id,
             }
             res.cookie("TAPE", jwt.sign(data,process.env.JWT_SECRET_KEY));
             res.redirect('/account/tape');
