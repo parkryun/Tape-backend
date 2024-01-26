@@ -70,10 +70,10 @@ router.get('/tape/tapeId', async (req, res) => {
         tapeImg: detail.tapeimageurl,
         tapeTitle: detail.title,
         tapeIntro: detail.content,
-        postDate: detail.created_at, // 'created_at' 필드를 'postDate'로 매핑
+        postDate: detail.created_at, 
         tapeMusicData: {
           musicId: detail.music_id,
-          content: detail.music_content // 'music_content' 필드를 'content'로 매핑
+          content: detail.music_content 
         }
       }));
 

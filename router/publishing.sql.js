@@ -48,5 +48,6 @@ module.exports = {
   getTapeById,
   insertTodayTape,
   insertTapeMusic,
-  getTodayTapeWithMusic
+  getTodayTapeWithMusic,
+  getTapeDetailsById 
 };
