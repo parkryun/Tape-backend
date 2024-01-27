@@ -59,8 +59,9 @@ router.post('/tape/today', async (req, res) => {
   }
 });
 
-router.get('/tape/tapeId', async (req, res) => {
-  const { tapeId } = req.params;
+// 테이프 상세 정보 불러오기 API 
+router.get('/tape/:tapeid', async (req, res) => {
+  const { tapeId } = req.params.tapeid;
 
   try {
     const tapeDetails = await db.query(getTapeDetailsById, [tapeId]);
@@ -93,6 +94,49 @@ router.get('/tape/tapeId', async (req, res) => {
     res.status(500).json({
       success: false,
       message: '데이터베이스 오류가 발생했습니다.'
+    });
+  }
+});
+
+// 테이프 듣기 API
+router.get('/tape/listen/:tapeid', async (req, res) => {
+  const { tapeId } = req.params.tapeid;
+
+  try {
+    // 특정 tape ID에 해당하는 상세 데이터를 조회합니다.
+    const tapeDetails = await db.query(getTapeDetailsById, [tapeId]);
+
+    if (tapeDetails.length > 0) {
+      const tapeMusicData = tapeDetails.map((detail) => ({
+        musicId: detail.music_id,
+        content: detail.music_content 
+      }));
+
+      res.status(200).json({
+        query: { tapeId },
+        result: {
+          success: true,
+          message: '테이프 정보 조회 성공',
+          tapeMusicData: tapeMusicData
+        }
+      });
+    } else {
+      res.status(404).json({
+        query: { tapeId },
+        result: {
+          success: false,
+          message: '테이프 정보를 찾을 수 없습니다.'
+        }
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      query: { tapeId },
+      result: {
+        success: false,
+        message: '데이터베이스 오류가 발생했습니다.'
+      }
     });
   }
 });
