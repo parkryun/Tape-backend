@@ -1,0 +1,1 @@
+export const getAlarm = "INSERT INTO relation VALUES ($1, $2)"
