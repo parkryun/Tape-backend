@@ -1,9 +1,13 @@
+import { postfollow } from "./follow.sql.js";
+
 const router = require("express").Router()
 const authVerify = require("../module/verify")
 
 router.post("/", authVerify, async (req, res) => { 
 
     const userIndex = req.decoded.userIndex
+    const followerId = userIndex
+    const followedId = req.body.followedId
 
     const result = { 
         "success": false,
@@ -11,23 +15,21 @@ router.post("/", authVerify, async (req, res) => {
         "data": []
     }
     
+    if (followedId == undefined || followerId == undefined || followedId.length == 0 || followerId.length == 0) {
+        result.message = "회원정보 부적합"
+        res.send(result)
+        return
+    } // 회원정보 예외처리
+    
     try { 
 
         client = new Client()
 
         await client.connect()
         
-        const values = [userIndex] 
+        const values = [followerId, followedId] 
 
-        const data = await client.query(getAlarm, values)
-        const row = data.rows
- 
-        if (row.length > 0) { 
-            result.data.push(row)
-        } else { 
-            result.message = '알림이 존재하지 않습니다.'
-        }
-        
+        await client.query(postfollow, values)
         result.success = true 
     } catch(err) { 
         result.message = err.message 
