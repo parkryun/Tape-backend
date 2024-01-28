@@ -7,11 +7,15 @@ const port = 3000
 require("dotenv").config()
 
 const alarmApi = require("./router/alarm.js")
+const followApi = require("./router/follow.js")
+const profileApi = require("./router/profile.js")
 
 // app.use ---------------------------------------------------
 app.use(express.json())
 app.use(cookieParser())
 app.use("/alarm", alarmApi)
+app.use("/follow", followApi)
+app.use("/profile", profileApi)
 
 // app.get ---------------------------------------------------
 app.get("/", (req, res) => {
