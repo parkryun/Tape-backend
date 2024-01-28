@@ -1,1 +1,1 @@
-export const getAlarm = "SELECT * FROM tape_alarm WHERE = $1"
+export const getAlarm = "SELECT * FROM tape_alarm WHERE id = $1"
