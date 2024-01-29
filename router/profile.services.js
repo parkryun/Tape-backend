@@ -1,5 +1,4 @@
-import { updateProfile } from "./profile.sql.js";
-
+const updateProfile = require("./profile.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
 
@@ -43,3 +42,4 @@ router.patch("/", authVerify, async (req, res) => {
     res.send(result) 
 })
 
+module.exports = router

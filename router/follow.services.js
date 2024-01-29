@@ -1,5 +1,4 @@
-import { postfollow } from "./follow.sql.js";
-
+const postfollow = require("./follow.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
 
@@ -12,7 +11,6 @@ router.post("/", authVerify, async (req, res) => {
     const result = { 
         "success": false,
         "message": null,
-        "data": []
     }
     
     if (followedId == undefined || followerId == undefined || followedId.length == 0 || followerId.length == 0) {
@@ -40,3 +38,5 @@ router.post("/", authVerify, async (req, res) => {
     res.send(result) 
 })
 
+
+module.exports = router
