@@ -1,5 +1,4 @@
-import { getProfile } from "./profile.sql.js";
-
+const getProfile = require("./profile.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
 // db client 추가
@@ -42,3 +41,4 @@ router.get("/", authVerify, async (req, res) => {
     res.send(result) 
 })
 
+module.exports = router

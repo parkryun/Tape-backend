@@ -1,5 +1,4 @@
-import { getAlarm } from "./alarm.sql.js";
-
+const getAlarm = require("./alarm.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
 // db client 추가
@@ -42,3 +41,4 @@ router.get("/all", authVerify, async (req, res) => {
     res.send(result) 
 })
 
+module.exports = router
