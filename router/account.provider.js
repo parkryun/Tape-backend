@@ -1,85 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
-const passport = require('passport');
-const session = require('express-session');
-const multer = require('multer'); //이미지
-const KakaoStrategy = require('passport-kakao').Strategy;
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
 
 const db = require('../data/database');
 const query = require('./account.sql');
+const createImageStorageConfig = require('../config/imagesStorage');
 require("dotenv").config(); //환경변수
 
-
-//session 설정
-router.use(session({
-    secret: 'super-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie:{
-        secure: false, //개발하는동안엔 false
-        maxAge: 2*24*60*60*1000,
-    }
-}));
-router.use(cookieParser());
-
 //이미지 저장 방식 설정
-const storageConfig = multer.diskStorage({
-  destination: function(req,file,cb){
-    cb(null, 'images');
-  },
-  filename: function(req,file,cb){
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-const upload = multer({storage: storageConfig});
-
-//passport 설정
-passport.use('kakao', new KakaoStrategy(
-        {
-            clientID: process.env.KAKAO_RESTAPI_KEY,
-            callbackURL: '/account/kakao/callback',
-        },
-        async (accessToken, refreshToken, profile, done) => {        
-            const email = profile._json.kakao_account.email;//로그인한 사용자 email
-            const id = profile._json.id; //카카오에서 설정된 id
-            try{
-                const user = await db.query(query.getKakaoUserByEmail, email);
-                if(user[0].length===0){ //처음 카카오 로그인 시
-                    await db.query(query.kakaoRegister, [email, id, accessToken]);
-                }
-                done(null, {email: email, id: id, accessToken: accessToken});
-            }catch(error){
-                console.log(error);
-            }
-        }
-    )
-)
-
-//카카오 로그인 창 가져오기
-router.get('/kakao',passport.authenticate('kakao',{session:false})); 
-
-//회원가입 여부 판단
-router.get('/kakao/callback', passport.authenticate('kakao',{session:false}), async (req,res) => {
-        const user = await db.query(query.findUserByEmail, req.user.email);
-        const userData = {
-            email : req.user.email,
-        };
-        if(user[0].length!==0){ //tape에 가입한 유저
-            const data = {
-                isAuth: true,
-                uid: user[0][0].user_id,
-            }
-            res.cookie("TAPE", jwt.sign(data,process.env.JWT_SECRET_KEY));
-            res.redirect('/account/tape');
-        } else { //tape에 가입해야하는 유저
-            res.cookie("userData", jwt.sign(userData,process.env.JWT_SECRET_KEY));
-            res.redirect('/account/nickname');
-        }
-        return;
-});
+const upload = createImageStorageConfig();
 
 //닉네임 작성 창 가져오기
 router.get('/nickname', (req,res)=>{
@@ -92,9 +22,10 @@ router.get('/nickname', (req,res)=>{
         message = errdata.message;
         success = errdata.success;
     }
+    console.log(nickname, message, success);
 
     const result = {
-        "success": success || true,
+        "success": success,
         "message": message || false,
         "data": {
             nickname : nickname || null,
@@ -109,8 +40,8 @@ router.get('/nickname', (req,res)=>{
         </form>
     `;
     res.send(nicknameForm);
-    console.log("cookie : ", cookies);
-    console.log("result : ", result);
+    console.log("/nickname get cookie : ", cookies);
+    console.log("/nickname get result : ", result);
 });
 
 //닉네임 유효성 검사
@@ -152,7 +83,7 @@ router.post('/nickname', async (req,res)=>{
         "message": null,
     }
     res.redirect('/account/profile');
-    console.log("post result : ", result);
+    console.log("/nickname post result : ", result);
     return;
 
 });
@@ -186,8 +117,8 @@ router.get('/profile',(req,res)=>{
         </form>
     `;
     res.send(userInputForm);
-    console.log("cookie : ", jwt.verify(req.cookies.userData, process.env.JWT_SECRET_KEY));
-    console.log("result : ", result);
+    console.log("/profile get cookie : ", jwt.verify(req.cookies.userData, process.env.JWT_SECRET_KEY));
+    console.log("/profile get result : ", result);
 }); 
 
 //프로필 저장 및 회원가입
@@ -234,7 +165,7 @@ router.post('/profile', upload.single('image'), async (req,res)=>{
         "success": true,
         "message": null,
     }
-    console.log("post result : ", result);
+    console.log("/profile post result : ", result);
     return;
 });
 
