@@ -33,23 +33,29 @@ passport.use('kakao', new KakaoStrategy(
 router.get('/',passport.authenticate('kakao',{session:false})); 
 
 //회원가입 여부 판단
-router.get('/callback', passport.authenticate('kakao',{session:false}), async (req,res) => {
-        const user = await db.query(query.findUserByEmail, req.user.email);
+router.get('/callback', passport.authenticate('kakao',{session:false}), async (req,res,next) => {
+    let user;
+    try{
+        user = await db.query(query.findUserByEmail, req.user.email);
+    } catch(error) {
+        next(error);
+    }
+    
+    if(user[0].length!==0){ //tape에 가입한 유저
+        const data = {
+            isAuth: true,
+            uid: user[0][0].user_id,
+        }
+        res.cookie("TAPE", jwt.sign(data,process.env.JWT_SECRET_KEY));
+        res.redirect('/account/tape');
+    } else { //tape에 가입해야하는 유저
         const userData = {
             email : req.user.email,
         };
-        if(user[0].length!==0){ //tape에 가입한 유저
-            const data = {
-                isAuth: true,
-                uid: user[0][0].user_id,
-            }
-            res.cookie("TAPE", jwt.sign(data,process.env.JWT_SECRET_KEY));
-            res.redirect('/account/tape');
-        } else { //tape에 가입해야하는 유저
-            res.cookie("userData", jwt.sign(userData,process.env.JWT_SECRET_KEY));
-            res.redirect('/account/nickname');
-        }
-        return;
+        res.cookie("userData", jwt.sign(userData,process.env.JWT_SECRET_KEY));
+        res.redirect('/account/nickname');
+    }
+    return;
 });
 
 module.exports = router;
