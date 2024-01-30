@@ -22,7 +22,6 @@ router.get('/nickname', (req,res)=>{
         message = errdata.message;
         success = errdata.success;
     }
-    console.log(nickname, message, success);
 
     const result = {
         "success": success,
@@ -177,7 +176,7 @@ router.get('/tape',(req,res)=>{
 
 });
 
-router.get("/cookie-test", (req, res) => {
+router.get("/test", (req, res) => {
     const payload = { //value
       isAuth: true,
       uid: 'test'
