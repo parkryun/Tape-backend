@@ -44,9 +44,9 @@ router.get('/callback', passport.authenticate('kakao',{session:false}), async (r
     if(user[0].length!==0){ //tape에 가입한 유저
         const data = {
             isAuth: true,
-            uid: user[0][0].user_id,
+            uid: user[0][0].id,
         }
-        res.cookie("TAPE", jwt.sign(data,process.env.JWT_SECRET_KEY));
+        res.cookie("token", jwt.sign(data,process.env.JWT_SECRET_KEY));
         res.redirect('/account/tape');
     } else { //tape에 가입해야하는 유저
         const userData = {

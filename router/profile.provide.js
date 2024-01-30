@@ -1,4 +1,4 @@
-const getProfile = require("./profile.sql")
+const query = require("./profile.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
 const db = require('../data/database')
@@ -7,21 +7,16 @@ const db = require('../data/database')
 // 사용자 프로필 불러오기 api
 router.get("/", authVerify, async (req, res) => { 
 
-    const userIndex = req.decoded.userIndex
+    const userIndex = req.decoded.uid
 
     const result = { 
         "success": false,
         "message": null,
         "data": []
     }
-    
     try { 
 
-        await db.getConnection
-        
-        const values = [userIndex] 
-
-        const data = await db.query(getProfile, values)
+        const data = await db.query(query.getProfile, userIndex);
 
         const row = data[0]
  
@@ -36,7 +31,6 @@ router.get("/", authVerify, async (req, res) => {
         result.message = err.message 
     }
 
-    if (client) client.end() 
 
     res.send(result) 
 })
