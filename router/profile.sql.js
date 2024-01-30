@@ -4,7 +4,7 @@ const getProfile = `
     FROM 
     User 
     WHERE id = ?
-`
+`;
 // 데이터 추가
 
 const updateProfile = `
@@ -13,7 +13,7 @@ const updateProfile = `
     SET 
     nickname = ?, introduce = ?, profileImageurl = ? 
     WHERE id = ?
-`
+`;
 
 module.exports = {
     getProfile: getProfile,
