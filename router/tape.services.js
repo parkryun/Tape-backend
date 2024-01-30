@@ -1,46 +1,80 @@
-// import { postTape } from "./tape.sql.js";
+const postTape = require("./tape.sql")
+const deleteTape = require("./tape.sql")
 
-// const router = require("express").Router()
-// const authVerify = require("../module/verify")
+const router = require("express").Router()
+const authVerify = require("../module/verify")
+const db = require('../data/database')
 
-// // 테이프 게시물 등록 api
-// router.post("/", authVerify, async (req, res) => { 
+// 테이프 게시물 등록 api
+router.post("/", authVerify, async (req, res) => { 
 
-//     const userIndex = req.decoded.userIndex
-//     const userNickname = req.body.userNickname
-//     const introduce = req.body.introduce
-//     const profileImage = req.body.profileImage // 수정 사항
+    const userIndex = req.decoded.userIndex
+    const tapeId = req.body.tapeId
+    const tapeIntroduce = req.body.tapeIntroduce
 
-//     const result = { 
-//         "success": false,
-//         "message": null
-//     }
+    const result = { 
+        "success": false,
+        "message": null
+    }
     
-//     if (userNickname == undefined || introduce == undefined || profileImage == undefined ||
-//         userNickname.length == 0 || introduce.length == 0 || profileImage.length == 0) 
-//         {
-//         result.message = "회원정보 부적합"
-//         res.send(result)
-//         return
-//     } // 회원정보 예외처리
+    if (tapeId == undefined || tapeIntroduce == undefined ||
+        tapeId.length == 0 || tapeIntroduce.length == 0) 
+        {
+        result.message = "게시물 정보 부적합"
+        res.send(result)
+        return
+    } // 회원정보 예외처리
     
-//     try { 
+    try { 
 
-//         client = new Client()
+        await db.getConnection
 
-//         await client.connect()
-        
-//         const values = [userNickname, introduce, profileImage, userIndex] 
+        const values = [tapeId, tapeIntroduce] 
 
-//         await client.query(updateProfile, values)
-//         result.success = true 
-//     } catch(err) { 
-//         result.message = err.message 
-//     }
+        await db.query(postTape, values)
+        result.success = true 
+    } catch(err) { 
+        result.message = err.message 
+    }
 
-//     if (client) client.end() 
+    if (client) client.end() 
 
-//     res.send(result) 
-// })
+    res.send(result) 
+})
 
-// module.exports = router
+// 테이프 게시물 삭제 api
+router.delete("/", authVerify, async (req, res) => { 
+
+    const userIndex = req.decoded.userIndex
+    const tapeId = req.body.tapeId
+
+    const result = { 
+        "success": false,
+        "message": null
+    }
+    
+    if (tapeId == undefined || tapeId.length == 0) 
+        {
+        result.message = "게시물 정보 부적합"
+        res.send(result)
+        return
+    } // 회원정보 예외처리
+    
+    try { 
+
+        await db.getConnection
+
+        const values = [tapeId] 
+
+        await db.query(deleteTape, values)
+        result.success = true 
+    } catch(err) { 
+        result.message = err.message 
+    }
+
+    if (client) client.end() 
+
+    res.send(result) 
+})
+
+module.exports = router

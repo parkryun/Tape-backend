@@ -1,6 +1,7 @@
 const postfollow = require("./follow.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
+const db = require('../data/database')
 
 router.post("/", authVerify, async (req, res) => { 
 
@@ -21,13 +22,12 @@ router.post("/", authVerify, async (req, res) => {
     
     try { 
 
-        client = new Client()
-
-        await client.connect()
+        await db.getConnection
         
         const values = [followerId, followedId] 
 
-        await client.query(postfollow, values)
+        await db.query(postfollow, values)
+        
         result.success = true 
     } catch(err) { 
         result.message = err.message 
