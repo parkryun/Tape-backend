@@ -153,7 +153,7 @@ router.post('/profile', upload.single('image'), async (req,res,next)=>{
         isAuth: true,
         uid: getUserId[0][0].user_id,
     }
-    res.cookie("TAPE", jwt.sign(data, SECRET_KEY));
+    res.cookie("token", jwt.sign(data, SECRET_KEY));
     res.redirect('/account/tape');
     const result = {
         "success": true,
@@ -166,7 +166,7 @@ router.post('/profile', upload.single('image'), async (req,res,next)=>{
 /** -------------- test --------------- */
 
 router.get('/tape',(req,res)=>{
-    console.log("cookie : ",jwt.verify(req.cookies.TAPE, process.env.JWT_SECRET_KEY));
+    console.log("cookie : ",jwt.verify(req.cookies.token, process.env.JWT_SECRET_KEY));
     res.send('tape main page');
 
 });

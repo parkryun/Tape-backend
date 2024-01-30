@@ -2,14 +2,14 @@ const getProfile = `
     SELECT 
     nickname, profileImageurl, introduce 
     FROM 
-    User 
+    user 
     WHERE id = ?
 `;
 // 데이터 추가
 
 const updateProfile = `
     UPDATE 
-    User 
+    user 
     SET 
     nickname = ?, introduce = ?, profileImageurl = ? 
     WHERE id = ?
