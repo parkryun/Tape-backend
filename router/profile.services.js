@@ -1,6 +1,7 @@
 const updateProfile = require("./profile.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
+const db = require('../data/database')
 
 // 사용자 프로필 수정 api
 router.patch("/", authVerify, async (req, res) => { 
@@ -25,13 +26,12 @@ router.patch("/", authVerify, async (req, res) => {
     
     try { 
 
-        client = new Client()
-
-        await client.connect()
+        await db.getConnection
         
         const values = [userNickname, introduce, profileImage, userIndex] 
 
-        await client.query(updateProfile, values)
+        await db.query(updateProfile, values)
+
         result.success = true 
     } catch(err) { 
         result.message = err.message 

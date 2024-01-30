@@ -1,12 +1,13 @@
 const getAlarm = require("./alarm.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
+const db = require('../data/database')
 // db client 추가
 
 // 알림 불러오기 api
-router.get("/all", authVerify, async (req, res) => { 
+router.get("/all", async (req, res) => { 
 
-    const userIndex = req.decoded.userIndex
+    const userIndex = 2
 
     const result = { 
         "success": false,
@@ -15,15 +16,13 @@ router.get("/all", authVerify, async (req, res) => {
     }
     
     try { 
-
-        client = new Client()
-
-        await client.connect()
+        await db.getConnection
         
         const values = [userIndex] 
 
-        const data = await client.query(getAlarm, values)
-        const row = data.rows
+        const data = await db.query(getAlarm, values)
+        
+        const row = data[0]
  
         if (row.length > 0) { 
             result.data.push(row)
@@ -36,7 +35,6 @@ router.get("/all", authVerify, async (req, res) => {
         result.message = err.message 
     }
 
-    if (client) client.end() 
 
     res.send(result) 
 })

@@ -1,9 +1,21 @@
-const getProfile = "SELECT nickname, profileImageurl, introduce FROM User WHERE id = $1"
+const getProfile = `
+    SELECT 
+    nickname, profileImageurl, introduce 
+    FROM 
+    User 
+    WHERE id = ?
+`;
 // 데이터 추가
 
-const updateProfile = "UPDATE User SET nickname = $1, introduce = $2, profileImageurl = $3 WHERE id = $4"
+const updateProfile = `
+    UPDATE 
+    User 
+    SET 
+    nickname = ?, introduce = ?, profileImageurl = ? 
+    WHERE id = ?
+`;
 
 module.exports = {
-    getProfile,
-    updateProfile
+    getProfile: getProfile,
+    updateProfile: updateProfile
 }
