@@ -1,52 +1,70 @@
 const express = require('express');
+const SpotifyWebApi = require('spotify-web-api-node');
 const router = express.Router();
 const db = require('../data/db');
-const { insertTape, insertTodayTape, insertTapeMusic } = require('./publishing.sql');
+const { insertTodayTape, insertTapeMusic } = require('./publishing.sql');
 
-// 기존의 테이프 등록 API
-router.post('/tape', async (req, res) => {
-  const { musicId, tapeImage, tapeIntroduce } = req.body;
-  
-  try {
-    const result = await db.query(insertTape, [musicId, tapeImage, tapeIntroduce]);
-
-    if (result.affectedRows > 0) {
-      res.status(201).json({
-        success: true,
-        message: '게시글 등록',
-        tapeId: result.insertId
-      });
-    } else {
-      throw new Error('생성 실패');
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: '데이터베이스 오류가 발생했습니다.'
-    });
-  }
+// SpotifyWebApi 인스턴스 설정
+const spotifyApi = new SpotifyWebApi({
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+  redirectUri: process.env.SPOTIFY_REDIRECT_URI
 });
+
+// Spotify API로부터 액세스 토큰을 얻는 함수
+async function getSpotifyAccessToken() {
+  try {
+    const data = await spotifyApi.clientCredentialsGrant();
+    spotifyApi.setAccessToken(data.body['access_token']);
+  } catch (error) {
+    console.error('Spotify 액세스 토큰을 얻는 중 에러 발생', error);
+    throw error;
+  }
+}
+
+// Spotify API를 호출하여 음악 정보를 가져오는 함수
+async function fetchSpotifyMusicData(trackId) {
+  await getSpotifyAccessToken(); // 액세스 토큰을 설정합니다.
+  try {
+    const data = await spotifyApi.getTrack(trackId);
+    return {
+      musicId: trackId,
+      content: data.body.name // 또는 가져오고 싶은 다른 정보
+    };
+  } catch (error) {
+    console.error('Spotify로부터 음악 정보를 가져오는 중 에러 발생', error);
+    throw error;
+  }
+}
 
 // 오늘의 테이프 정보 등록 API
 router.post('/tape/today', async (req, res) => {
   const { tapeImg, tapeTitle, tapeIntro, tapeComment, tapeMusicData } = req.body;
 
   try {
-    // 먼저 tape 테이블에 오늘의 테이프 정보를 등록합니다.
+    // 먼저 tape 테이블에 오늘의 테이프 정보를 등록
     const tapeResult = await db.query(insertTodayTape, [tapeImg, tapeTitle, tapeIntro]);
     const tapeId = tapeResult.insertId;
 
-    // tape_music 테이블에 음악 정보를 등록합니다.
+    // Spotify API를 사용하여 음악 정보를 가져온 후 데이터베이스에 저장
     if (tapeMusicData && tapeMusicData.length > 0) {
-      await Promise.all(tapeMusicData.map(music =>
-        db.query(insertTapeMusic, [tapeId, music.musicId, music.content])
-      ));
+      // 각 트랙 ID에 대해 Spotify API를 호출
+      const musicDataPromises = tapeMusicData.map(async (music) => {
+        return await fetchSpotifyMusicData(music.spotifyTrackId);
+      });
+      const fetchedMusicData = await Promise.all(musicDataPromises);
+
+      // 가져온 음악 정보를 데이터베이스에 저장
+      await Promise.all(fetchedMusicData.map(async (music) => {
+        if (music) {
+          return await db.query(insertTapeMusic, [tapeId, music.musicId, music.content]);
+        }
+      }));
     }
 
     res.status(201).json({
       success: true,
-      message: '오늘의 테이프 정보가 등록되었습니다.',
+      message: '오늘의 테이프 정보 등록',
       tapeId
     });
 
@@ -54,28 +72,31 @@ router.post('/tape/today', async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: '데이터베이스 오류가 발생했습니다.'
+      message: '데이터베이스 오류 또는 Spotify API 오류 발생'
     });
   }
 });
 
-// 테이프 상세 정보 불러오기 API 
+// 테이프 상세 정보 불러오기 API
 router.get('/tape/:tapeid', async (req, res) => {
-  const { tapeId } = req.params.tapeid;
+  const tapeId = req.params.tapeid; // 변수 destructuring 수정
 
   try {
     const tapeDetails = await db.query(getTapeDetailsById, [tapeId]);
 
     if (tapeDetails.length > 0) {
-      const tapeData = tapeDetails.map((detail) => ({
+      // 각 음악에 대한 Spotify 정보를 가져옵니다.
+      const musicDetailsPromises = tapeDetails.map(detail =>
+        fetchSpotifyMusicData(detail.music_id)
+      );
+      const musicDetails = await Promise.all(musicDetailsPromises);
+
+      const tapeData = tapeDetails.map((detail, index) => ({
         tapeImg: detail.tapeimageurl,
         tapeTitle: detail.title,
         tapeIntro: detail.content,
-        postDate: detail.created_at, 
-        tapeMusicData: {
-          musicId: detail.music_id,
-          content: detail.music_content 
-        }
+        postDate: detail.created_at,
+        tapeMusicData: musicDetails[index] || { musicId: detail.music_id, content: detail.music_content }
       }));
 
       res.status(200).json({
@@ -100,16 +121,22 @@ router.get('/tape/:tapeid', async (req, res) => {
 
 // 테이프 듣기 API
 router.get('/tape/listen/:tapeid', async (req, res) => {
-  const { tapeId } = req.params.tapeid;
+  const tapeId = req.params.tapeid; // 변수 destructuring 수정
 
   try {
     // 특정 tape ID에 해당하는 상세 데이터를 조회합니다.
     const tapeDetails = await db.query(getTapeDetailsById, [tapeId]);
 
     if (tapeDetails.length > 0) {
-      const tapeMusicData = tapeDetails.map((detail) => ({
-        musicId: detail.music_id,
-        content: detail.music_content 
+      // 각 음악에 대한 Spotify 정보를 가져옵니다.
+      const musicDetailsPromises = tapeDetails.map(detail =>
+        fetchSpotifyMusicData(detail.music_id)
+      );
+      const musicDetails = await Promise.all(musicDetailsPromises);
+
+      const tapeMusicData = musicDetails.map((detail, index) => ({
+        musicId: tapeDetails[index].music_id,
+        content: detail || tapeDetails[index].music_content
       }));
 
       res.status(200).json({
@@ -117,7 +144,7 @@ router.get('/tape/listen/:tapeid', async (req, res) => {
         result: {
           success: true,
           message: '테이프 정보 조회 성공',
-          tapeMusicData: tapeMusicData
+          tapeMusicData
         }
       });
     } else {
@@ -135,7 +162,7 @@ router.get('/tape/listen/:tapeid', async (req, res) => {
       query: { tapeId },
       result: {
         success: false,
-        message: '데이터베이스 오류가 발생했습니다.'
+        message: '데이터베이스 오류 발생'
       }
     });
   }
