@@ -1,3 +1,9 @@
-const postfollow = "INSERT INTO relation VALUES ($1, $2)"
+const postfollow = `
+    INSERT 
+    INTO 
+    relation 
+    VALUES 
+    (?, ?)
+`
 
 module.exports = postfollow
