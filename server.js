@@ -10,11 +10,11 @@ require("dotenv").config()
 
 const alarmApi = require("./router/alarm.provide.js")
 const followApi = require("./router/follow.services.js")
-const profileProviedApi = require("./router/profile.provide.js")
+const profileProvideApi = require("./router/profile.provide.js")
 const profileServicesApi = require("./router/profile.services.js")
 const tapeServicesApi = require("./router/tape.services.js")
 const tapeProvideApi = require("./router/tape.provide.js")
-const musicProvideApi = require("./router/music.provide.js")
+// const musicProvideApi = require("./router/music.provide.js")
 const acconutProviderApi = require('./router/account.provider')
 const kakaoRegisterApi = require('./router/kakao.account.js');
 const createSessionConfig = require('./config/session');
@@ -32,7 +32,7 @@ app.use("/profile", profileProvideApi)
 app.use("/profile", profileServicesApi)
 app.use("/tape", tapeServicesApi)
 app.use("/tape", tapeProvideApi)
-app.use("/music", musicProvideApi)
+// app.use("/music", musicProvideApi)
 app.use('/account', acconutProviderApi);
 app.use("/kakao", kakaoRegisterApi);
 
