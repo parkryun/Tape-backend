@@ -10,9 +10,10 @@ const alarmApi = require("./router/alarm.provide.js")
 const followApi = require("./router/follow.services.js")
 const profileProviedApi = require("./router/profile.provide.js")
 const profileServicesApi = require("./router/profile.services.js")
+const tapeServicesApi = require("./router/tape.services.js")
+const tapeProvideApi = require("./router/tape.provide.js")
+const musicProvideApi = require("./router/music.provide.js")
 const acconutApi = require('./router/account.provider')
-
-// const tapeApi = require("./router/tape.services")
 
 // app.use ---------------------------------------------------
 app.use(express.urlencoded({extended:false}));
@@ -24,8 +25,12 @@ app.use("/alarm", alarmApi)
 app.use("/follow", followApi)
 app.use("/profile", profileProviedApi)
 app.use("/profile", profileServicesApi)
+app.use("/tape", tapeServicesApi)
+app.use("/tape", tapeProvideApi)
+app.use("/music", musicProvideApi)
+
 app.use('/account', acconutApi);
-// app.use("/tape", tapeApi)
+
 
 // app.get ---------------------------------------------------
 app.get("/", (req, res) => {
