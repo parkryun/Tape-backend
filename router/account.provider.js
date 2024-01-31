@@ -25,7 +25,7 @@ router.get('/nickname', (req,res)=>{
     }
 
     const result = {
-        "success": success,
+        "success": success || true,
         "message": message || false,
         "data": {
             nickname : nickname || null,
