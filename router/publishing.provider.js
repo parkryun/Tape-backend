@@ -168,4 +168,52 @@ router.get('/tape/listen/:tapeid', async (req, res) => {
   }
 });
 
+// DELETE 
+router.delete('/tape', async (req, res) => {
+  const { tapeId } = req.query; 
+
+  if (!tapeId) {
+    return res.status(400).json({
+      query: { tapeId },
+      result: {
+        success: false,
+        message: 'tapeId query parameter is required'
+      }
+    });
+  }
+
+  try {
+    // 테이프를 삭제하는 SQL 쿼리
+    const deleteTapeSql = 'DELETE FROM tape WHERE id = ?';
+    const result = await db.query(deleteTapeSql, [tapeId]);
+
+    if (result.affectedRows > 0) {
+      res.json({
+        query: { tapeId },
+        result: {
+          success: true,
+          message: 'Tape deleted successfully'
+        }
+      });
+    } else {
+      res.status(404).json({
+        query: { tapeId },
+        result: {
+          success: false,
+          message: 'Tape not found'
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting tape:', error);
+    res.status(500).json({
+      query: { tapeId },
+      result: {
+        success: false,
+        message: 'Internal Server Error'
+      }
+    });
+  }
+});
+
 module.exports = router;
