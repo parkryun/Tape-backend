@@ -20,9 +20,15 @@ const getTapeMusicByTapeId = `
     SELECT * FROM tape_music WHERE tape_id = ?
 `;
 
+// tape 테이블에서 특정 id의 데이터를 삭제하는 쿼리
+const deleteTapeById = `
+    DELETE FROM tape WHERE id = ?
+`;
+
 module.exports = {
     insertTapeData,
     insertTapeMusicData,
     getAllTapesData,
-    getTapeMusicByTapeId
+    getTapeMusicByTapeId,
+    deleteTapeById 
 };

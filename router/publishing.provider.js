@@ -1,5 +1,5 @@
 const db = require('../data/database');
-const { insertTapeData, insertTapeMusicData, getAllTapesData, getTapeMusicByTapeId } = require('./publishing.sql');
+const { insertTapeData, insertTapeMusicData, getAllTapesData, getTapeMusicByTapeId, deleteTapeById } = require('./publishing.sql');
 const router = require('express').Router();
 
 // 테이프 등록 라우트
@@ -71,5 +71,41 @@ router.get('/tape', async (req, res) => {
         });
     }
 });
+
+// 테이프 삭제 라우트
+router.delete('/tape/:tapeId', async (req, res) => {
+    const tapeId = parseInt(req.params.tapeId, 10);
+
+    if (!tapeId) {
+        return res.status(400).json({
+            success: false,
+            message: "잘못된 tapeId 입니다."
+        });
+    }
+
+    try {
+        // deleteTapeById 쿼리를 사용하여 테이프 삭제
+        const [result] = await db.query(deleteTapeById, [tapeId]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                message: `id가 ${tapeId}인 테이프를 찾을 수 없습니다.`
+            });
+        }
+
+        res.json({
+            success: true,
+            message: `id가 ${tapeId}인 테이프가 성공적으로 삭제되었습니다.`,
+            tapeId: tapeId
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "테이프 삭제 중 오류가 발생했습니다: " + err.message
+        });
+    }
+});
+
 
 module.exports = router;
