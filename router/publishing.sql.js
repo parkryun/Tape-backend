@@ -1,7 +1,7 @@
 // tape 테이블에 데이터를 삽입
 const insertTapeData = `
-    INSERT INTO tape (id, user_id, title, content, created_at, tapeimageurl, is_profile)
-    VALUES (?, ?, ?, ?, STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), ?, ?)
+    INSERT INTO tape (user_id, title, content, created_at, tapeimageurl, is_profile)
+    VALUES (?, ?, ?, ?, ?, ?)
 `;
 
 // tape_music 테이블에 데이터를 삽입
@@ -10,7 +10,19 @@ const insertTapeMusicData = `
     VALUES (?, ?, ?)
 `;
 
+// tape 테이블에서 모든 데이터를 조회하는 쿼리
+const getAllTapesData = `
+    SELECT * FROM tape
+`;
+
+// 특정 tape_id에 해당하는 tape_music 테이블 데이터를 조회하는 쿼리
+const getTapeMusicByTapeId = `
+    SELECT * FROM tape_music WHERE tape_id = ?
+`;
+
 module.exports = {
     insertTapeData,
-    insertTapeMusicData
+    insertTapeMusicData,
+    getAllTapesData,
+    getTapeMusicByTapeId
 };
