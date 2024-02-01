@@ -1,16 +1,14 @@
-require('dotenv').config(); 
-const express = require("express");
+const express = require('express');
+require('dotenv').config(); // 환경 변수를 로드합니다.
+const publishingRouter = require('./router/publishing.provider');
+
 const app = express();
-const port = process.env.PORT || 3000; 
-const publishingApi = require('./router/publishing.provider'); 
 
-app.use(express.json());
-app.use('/tape', publishingApi); 
+app.use(express.json()); 
+app.use('/api', publishingRouter);
+const PORT = process.env.PORT || 3000;
 
-app.get("/", (req, res) => {
-  res.send("good");
-})
-
-app.listen(port, () => {
-    console.log(`${port}번 포트에서 서버가 시작됨`);
+// 서버를 시작합니다.
+app.listen(PORT, () => {
+  console.log(`서버가 ${PORT}번 포트에서 실행중입니다.`);
 });
