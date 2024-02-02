@@ -94,10 +94,11 @@ async function findOwnerId(tapeId) {
     if (rows.length > 0) {
         return rows[0].user_id;
     } else {
-        return null; // 결과가 없으면 null 반환
+        return null; 
     }
 }
 
+// 테이프 삭제 API
 router.delete("/", authVerify, async (req, res) => {
     const userIndex = req.decoded.userIndex;
     const tapeId = req.body.tapeId;
@@ -113,6 +114,8 @@ router.delete("/", authVerify, async (req, res) => {
     }
 
     try {
+
+        await db.getConnection
         // 테이프 소유자 ID를 찾기
         const tapeOwnerId = await findOwnerId(tapeId);
 
@@ -130,13 +133,45 @@ router.delete("/", authVerify, async (req, res) => {
         // 삭제 권한이 확인되면 테이프 삭제
         await db.query(query.deleteTape, [tapeId]);
         result.success = true;
-        result.message = "테이프가 성공적으로 삭제되었습니다.";
     } catch (err) {
         result.message = err.message;
-        return res.status(500).send(result);
     }
 
     res.send(result);
 });
+
+// 테이프 좋아요 API
+router.post("/tape/like/", async (req, res) => {
+
+    const userId = req.decoded.userIndex; 
+    const tapeId = req.body.tapeId;
+
+    const result = {
+        "success": false,
+        "message": ""
+    };
+
+    try {
+
+        await db.getConnection
+
+        const [likes] = await db.query(query.checkTapeLike, [userId, tapeId]);
+        if (likes.length > 0) {
+            // 좋아요가 있다면 삭제
+            await db.query(query.removeTapeLike, [userId, tapeId]);
+            
+        } else {
+            // 좋아요가 없다면 추가
+            await db.query(query.addTapeLike, [userId, tapeId]);
+            
+        }
+        result.success = true;
+    } catch (err) {
+        result.message = err.message;
+        
+    }
+
+});
+
 
 module.exports = router

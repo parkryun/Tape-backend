@@ -27,9 +27,27 @@ const getTapeOrderbyLike = `
     tape ;
 `;
 
+const checkTapeLike = `
+    SELECT * FROM tape_like 
+    WHERE user_id = ? AND tape_id = ?;
+`;
+
+const addTapeLike = `
+    INSERT INTO tape_like (user_id, tape_id, created_at) 
+    VALUES (?, ?, CURRENT_TIMESTAMP);
+`;
+
+const removeTapeLike = `
+    DELETE FROM tape_like 
+    WHERE user_id = ? AND tape_id = ?;
+`;
+
 module.exports = {
     postTape: postTape,
     deleteTape: deleteTape,
     getTapePost: getTapePost,
-    getTapeOrderbyLike: getTapeOrderbyLike
+    getTapeOrderbyLike: getTapeOrderbyLike,
+    addTapeLike: addTapeLike,
+    checkTapeLike: checkTapeLike,
+    removeTapeLike: removeTapeLike
 }
