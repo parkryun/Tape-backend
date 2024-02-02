@@ -24,8 +24,7 @@ const getTapeOrderbyLike = `
     SELECT 
     * 
     FROM 
-    tape_post 
-    WHERE id = ?;
+    tape ;
 `;
 
 module.exports = {
