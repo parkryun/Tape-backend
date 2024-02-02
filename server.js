@@ -12,7 +12,6 @@ const profileProvideApi = require("./router/profile.provide.js")
 const profileServicesApi = require("./router/profile.services.js")
 const tapeServicesApi = require("./router/tape.services.js")
 const tapeProvideApi = require("./router/tape.provide.js")
-const musicProvideApi = require("./router/music.provide.js")
 const acconutApi = require('./router/account.provider')
 
 // app.use ---------------------------------------------------
@@ -27,7 +26,6 @@ app.use("/profile", profileProvideApi)
 app.use("/profile", profileServicesApi)
 app.use("/tape", tapeServicesApi)
 app.use("/tape", tapeProvideApi)
-app.use("/music", musicProvideApi)
 
 app.use('/account', acconutApi);
 
