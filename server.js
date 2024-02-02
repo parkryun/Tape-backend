@@ -13,9 +13,13 @@ const profileServicesApi = require("./router/profile.services.js")
 const tapeServicesApi = require("./router/tape.services.js")
 const tapeProvideApi = require("./router/tape.provide.js")
 const musicProvideApi = require("./router/music.provide.js")
+const acconutApi = require('./router/account.provider')
 
 // app.use ---------------------------------------------------
+app.use(express.urlencoded({extended:false}));
 app.use(express.json())
+
+// app.get ---------------------------------------------------
 app.use(cookieParser())
 app.use("/alarm", alarmApi)
 app.use("/follow", followApi)
@@ -24,6 +28,9 @@ app.use("/profile", profileServicesApi)
 app.use("/tape", tapeServicesApi)
 app.use("/tape", tapeProvideApi)
 app.use("/music", musicProvideApi)
+
+app.use('/account', acconutApi);
+
 
 // app.get ---------------------------------------------------
 app.get("/", (req, res) => {
