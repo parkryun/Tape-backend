@@ -1,111 +1,142 @@
-const db = require('../data/database');
-const { insertTapeData, insertTapeMusicData, getAllTapesData, getTapeMusicByTapeId, deleteTapeById } = require('./publishing.sql');
-const router = require('express').Router();
+const query = require("./publishing.sql")
 
-// 테이프 등록 라우트
-router.post('/tape/today', async (req, res) => {
-    // 클라이언트로부터 받은 데이터 (임시 데이터)
-    const userId = 1; 
-    const tapeImg = 'http://example.com/path/to/image.png';
-    const tapeTitle = '테스트 제목';
-    const tapeIntro = '테스트 소개';
-    const tapeComment = '테스트 댓글';
-    const tapeMusicData = [
-        { musicId: 1, content: '첫 번째 음악 설명' },
-    ];
+const router = require("express").Router()
+const authVerify = require("../module/verify")
+const db = require('../data/database')
+
+// 오늘의 테이프 등록 api
+router.post("/today", async (req, res) => { 
+
+    // const userIndex = req.decoded.userIndex
+    const userIndex = 1
+    // const tapeImg = req.body.tapeImg
+    const tapeTitle = req.body.tapeTitle
+    const tapeContent = req.body.tapeContent
+    
+    const musicId = req.body.tapeMusicData[0].musicId
+    const content = req.body.tapeMusicData[0].content
+
+    const result = { 
+        "success": false,
+        "message": null
+    }
+    
+    if (tapeTitle == undefined || tapeContent == undefined || musicId == undefined || content == undefined ||
+        tapeTitle.length == 0 || tapeContent.length == 0 || musicId.length == 0 || content.length == 0) 
+        {
+        result.message = "테이프 정보 부적합"
+        res.send(result)
+        return
+    } // 회원정보 예외처리
+    
+    try { 
+
+        await db.getConnection
+
+        const tapeValues = [userIndex, tapeTitle, tapeContent, false] // 이미지 추가
+        await db.query(query.postTodayTape, tapeValues)
+        
+        data = await db.query(`SELECT id FROM tape WHERE user_id = ${userIndex} ORDER BY created_at DESC limit 1`) // tape_id 가져오기
+
+        tapeId = data[0][0].id
+
+        const musicValues = [tapeId, musicId, content] // 음악 여러개 넣는거 해야됨
+        await db.query(query.postTapeMusic, musicValues)
+        
+        result.success = true 
+    } catch(err) { 
+        result.message = err.message 
+    }
+
+    res.send(result) 
+})
+
+// 테이프 게시물 등록 api
+router.post("/", async (req, res) => { 
+
+    const userIndex = req.decoded.userIndex
+    const tapeId = req.body.tapeId
+    const tapeIntroduce = req.body.tapeIntroduce
+
+    const result = { 
+        "success": false,
+        "message": null
+    }
+    
+    if (tapeId == undefined || tapeIntroduce == undefined ||
+        tapeId.length == 0 || tapeIntroduce.length == 0) 
+        {
+        result.message = "게시물 정보 부적합"
+        res.send(result)
+        return
+    } // 회원정보 예외처리
+    
+    try { 
+
+        await db.getConnection
+
+        const values = [tapeId, tapeIntroduce] 
+
+        await db.query(query.postTape, values)
+        result.success = true 
+    } catch(err) { 
+        result.message = err.message 
+    }
+
+    if (client) client.end() 
+
+    res.send(result) 
+})
+
+// 사용자 ID 찾는 함수
+async function findOwnerId(tapeId) {
+    const [rows] = await db.query(`SELECT user_id FROM tape WHERE id = ?`, [tapeId]);
+    if (rows.length > 0) {
+        return rows[0].user_id;
+    } else {
+        return null; // 결과가 없으면 null 반환
+    }
+}
+
+router.delete("/", authVerify, async (req, res) => {
+    const userIndex = req.decoded.userIndex;
+    const tapeId = req.body.tapeId;
+
+    const result = {
+        "success": false,
+        "message": null
+    };
+
+    if (tapeId == undefined || tapeId.length == 0) {
+        result.message = "게시물 정보 부적합";
+        return res.send(result);
+    }
 
     try {
-        // 현재 날짜와 시간을 생성
-        const createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        // 테이프 소유자 ID를 찾기
+        const tapeOwnerId = await findOwnerId(tapeId);
 
-        // tape 테이블에 데이터를 삽입하고 삽입된 행의 ID를 가져옵니다 (id 컬럼은 자동 증가됨)
-        const [insertResult] = await db.query(insertTapeData, [
-            userId,
-            tapeTitle,
-            tapeIntro,
-            createdAt,
-            tapeImg,
-            false // is_profile
-        ]);
-
-        const tapeId = insertResult.insertId; // 삽입된 tape의 id를 가져옴, 외래키
-
-        // tape_music 테이블에 데이터를 삽입합니다.
-        for (const { musicId, content } of tapeMusicData) {
-            await db.query(insertTapeMusicData, [
-                tapeId, // 새로 생성된 tape의 id
-                musicId,
-                content
-            ]);
+        if (tapeOwnerId === null) {
+            result.message = "해당 테이프가 존재하지 않습니다.";
+            return res.status(404).send(result);
         }
 
-        res.status(201).send({
-            result: {
-                success: true,
-                message: '테이프와 음악 데이터 저장 성공',
-                tapeId: tapeId // 새로 생성된 tape의 id를 응답에 포함
-            }
-        });
-    } catch (err) {
-        res.status(500).send({
-            result: {
-                success: false,
-                message: '데이터 저장 실패: ' + err.message
-            }
-        });
-    }
-});
-
-// 테이프 데이터 조회 라우트
-router.get('/tape', async (req, res) => {
-    try {
-        const [tapes] = await db.query(getAllTapesData);
-        res.status(200).json({
-            success: true,
-            data: tapes
-        });
-    } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: "데이터 조회에 실패했습니다: " + err.message
-        });
-    }
-});
-
-// 테이프 삭제 라우트
-router.delete('/tape/:tapeId', async (req, res) => {
-    const tapeId = parseInt(req.params.tapeId, 10);
-
-    if (!tapeId) {
-        return res.status(400).json({
-            success: false,
-            message: "잘못된 tapeId 입니다."
-        });
-    }
-
-    try {
-        // deleteTapeById 쿼리를 사용하여 테이프 삭제
-        const [result] = await db.query(deleteTapeById, [tapeId]);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: `id가 ${tapeId}인 테이프를 찾을 수 없습니다.`
-            });
+        // 현재 사용자가 테이프의 소유자인지 확인
+        if (userIndex !== tapeOwnerId) {
+            result.message = "삭제 권한이 없습니다.";
+            return res.status(403).send(result);
         }
 
-        res.json({
-            success: true,
-            message: `id가 ${tapeId}인 테이프가 성공적으로 삭제되었습니다.`,
-            tapeId: tapeId
-        });
+        // 삭제 권한이 확인되면 테이프 삭제
+        await db.query(query.deleteTape, [tapeId]);
+        result.success = true;
+        result.message = "테이프가 성공적으로 삭제되었습니다.";
     } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: "테이프 삭제 중 오류가 발생했습니다: " + err.message
-        });
+        result.message = err.message;
+        return res.status(500).send(result);
     }
+
+    res.send(result);
 });
 
-
-module.exports = router;
+module.exports = router
