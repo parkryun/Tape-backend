@@ -2,12 +2,7 @@ const db = require('../data/database');
 const query = require('../router/account.sql');
 
 async function validateNickname(nickname, next){
-    let existingUser;
-    try{
-        existingUser = await db.query(query.findUserByNickname, nickname);
-    } catch (error){
-        next(error);
-    }
+    const existingUser = await db.query(query.findUserByNickname, nickname);;
     const regex = /^[A-Za-z0-9._]+$/;
     if(!regex.test(nickname)){ // 정규표현식 불만족
         return '사용자 이름은 영문, 숫자, 마침표, 밑줄만 사용할 수 있습니다.';
