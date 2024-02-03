@@ -42,6 +42,21 @@ const removeTapeLike = `
     WHERE user_id = ? AND tape_id = ?;
 `;
 
+const checkMusicLike = `
+    SELECT * FROM music_like 
+    WHERE user_id = ? AND music_id = ?;
+`;
+
+const addMusicLike = `
+    INSERT INTO music_like (user_id, tape_id, music_id, created_at) 
+    VALUES (?, ?, ?, CURRENT_TIMESTAMP);
+`;
+
+const removeMusicLike = `
+    DELETE FROM music_like 
+    WHERE user_id = ? AND music_id = ?;
+`;
+
 module.exports = {
     postTape: postTape,
     deleteTape: deleteTape,
@@ -49,5 +64,8 @@ module.exports = {
     getTapeOrderbyLike: getTapeOrderbyLike,
     addTapeLike: addTapeLike,
     checkTapeLike: checkTapeLike,
-    removeTapeLike: removeTapeLike
+    removeTapeLike: removeTapeLike,
+    checkMusicLike: checkMusicLike,
+    addMusicLike: addMusicLike,
+    removeMusicLike: removeMusicLike
 }

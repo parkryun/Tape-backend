@@ -1,3 +1,4 @@
+const cookieParser = require('cookie-parser');
 const express = require('express');
 require('dotenv').config(); // 환경 변수를 로드합니다.
 const publishingRouter = require('./router/publishing.provider');
@@ -5,6 +6,7 @@ const publishingRouter = require('./router/publishing.provider');
 const app = express();
 
 app.use(express.json()); 
+app.use(cookieParser());
 app.use('/api', publishingRouter);
 const PORT = process.env.PORT || 3000;
 

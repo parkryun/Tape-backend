@@ -4,8 +4,9 @@ const router = require("express").Router()
 const authVerify = require("../module/verify")
 const db = require('../data/database')
 
+
 // 오늘의 테이프 등록 api
-router.post("/today", async (req, res) => { 
+router.post("/today",authVerify, async (req, res) => { 
 
     // const userIndex = req.decoded.userIndex
     const userIndex = 1
@@ -52,7 +53,7 @@ router.post("/today", async (req, res) => {
 })
 
 // 테이프 게시물 등록 api
-router.post("/", async (req, res) => { 
+router.post("/",authVerify, async (req, res) => { 
 
     const userIndex = req.decoded.userIndex
     const tapeId = req.body.tapeId
@@ -141,7 +142,7 @@ router.delete("/", authVerify, async (req, res) => {
 });
 
 // 테이프 좋아요 API
-router.post("/tape/like/", async (req, res) => {
+router.post("/tape/like/",authVerify, async (req, res) => {
 
     const userId = req.decoded.userIndex; 
     const tapeId = req.body.tapeId;
@@ -170,8 +171,36 @@ router.post("/tape/like/", async (req, res) => {
         result.message = err.message;
         
     }
-
+    res.send(result);
 });
 
+// 테이프 내 음악 좋아요 API
+router.post("/tape/music/like/", authVerify, async (req, res) => {
+    const userId = req.decoded.userIndex; // JWT에서 사용자 ID 추출
+    const { tapeId, tapeMusicId } = req.body;
+
+    const result = {
+        "success": false,
+        "message": ""
+    };
+
+    try {
+        await db.getConnection;
+
+        const [musicLikes] = await db.query(query.checkMusicLike, [userId, tapeMusicId]);
+        if (musicLikes.length > 0) {
+            // 좋아요가 있다면 삭제
+            await db.query(query.removeMusicLike, [userId, tapeMusicId]);
+        } else {
+            // 좋아요가 없다면 추가
+            await db.query(query.addMusicLike, [userId, tapeId, tapeMusicId]);
+        }
+        result.success = true;
+    } catch (err) {
+        result.message = err.message;
+    }
+
+    res.send(result);
+});
 
 module.exports = router
