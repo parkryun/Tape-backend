@@ -3,7 +3,7 @@ const router = express.Router();
 
 const jwt = require('jsonwebtoken');
 
-const verifyKakaoToken = require('../module/verify-kakaoToken');
+const validateKakaoToken = require('../config/validateKakaoToken');
 const db = require('../data/database');
 const query = require('./account.sql');
 

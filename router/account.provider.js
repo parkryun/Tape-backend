@@ -56,7 +56,6 @@ router.post('/profile', upload.single('image'), async (req,res)=>{
         res.json(result);
         return;
     }
-
     const userInfo = {
         email: email,
         nickname: nickname,
@@ -74,7 +73,9 @@ router.post('/profile', upload.single('image'), async (req,res)=>{
     } catch (error){
         result.message = "Can't connect to database";
         res.json(result);
+        return;
     }
+    console.log("test");
 
     const token = {
         isAuth: true,
@@ -82,7 +83,7 @@ router.post('/profile', upload.single('image'), async (req,res)=>{
     }
     res.cookie("token", jwt.sign(token, SECRET_KEY));
     
-    res.success = true;
+    result.success = true;
     res.json(result);
 });
 
