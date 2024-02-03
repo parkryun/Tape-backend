@@ -13,9 +13,7 @@ router.get('/callback', async (req,res) => {
     const result = {
         "success": false,
         "message": null,
-        "data":{
-
-        }
+        "data":{ }
     }
     const kakaoToken = req.query.accessToken;
     const email = req.query.email;
@@ -45,14 +43,11 @@ router.get('/callback', async (req,res) => {
         res.cookie("token", jwt.sign(token, process.env.JWT_SECRET_KEY));
         result.data.isSignin = true;
         res.json(result);
-    } else { //tape에 가입해야하는 유저
-        const userData = {
-            email : email,
-        };
-        res.cookie("userData", jwt.sign(userData, process.env.JWT_SECRET_KEY));
-        res.json(result);
+        return;
     }
 
+    //tape에 가입해야하는 유저
+    res.json(result);
     return;
 });
 
