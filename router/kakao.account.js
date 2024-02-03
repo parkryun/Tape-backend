@@ -74,8 +74,8 @@ router.get('/callback', async (req,res) => {
         "message": null,
     }
 
-    const kakaoToken = req.body.accessToken;
-    const email = req.body.email;
+    const kakaoToken = req.query.accessToken;
+    const email = req.query.email;
     const errorMessage = verifyKakaoToken(kakaoToken);
     if(errorMessage){ //카카오 토큰 검사 불통과
         result.message = errorMessage;
@@ -102,7 +102,7 @@ router.get('/callback', async (req,res) => {
         res.json(result);
     } else { //tape에 가입해야하는 유저
         const userData = {
-            email : req.user.email,
+            email : email,
         };
         res.cookie("userData", jwt.sign(userData, process.env.JWT_SECRET_KEY));
         res.json(result);

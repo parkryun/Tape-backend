@@ -85,4 +85,13 @@ router.post('/profile', upload.single('image'), async (req,res)=>{
     res.json(result);
 });
 
+router.post('/logout', async(req,res)=>{
+    const result = {
+        "success": true,
+        "message": null,
+    }
+    res.clearCookie("token");
+    res.json(result);
+});
+
 module.exports = router;
