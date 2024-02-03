@@ -7,17 +7,18 @@ const validateKakaoToken = require('../config/validateKakaoToken');
 const db = require('../data/database');
 const query = require('./account.sql');
 
-require("dotenv").config(); //환경변수
+require("dotenv").config();
 
 router.get('/callback', async (req,res) => {
+    const kakaoToken = req.query.accessToken;
+    const email = req.query.email;
     const result = {
         "success": false,
         "message": null,
         "data":{ }
     }
-    const kakaoToken = req.query.accessToken;
-    const email = req.query.email;
-    const errorMessage = await verifyKakaoToken(kakaoToken);
+
+    const errorMessage = await validateKakaoToken(kakaoToken);
     if(errorMessage){ //카카오 토큰 검사 불통과
         result.message = errorMessage;
         res.json(result);

@@ -1,7 +1,7 @@
 const db = require('../data/database');
 const query = require('../router/account.sql');
 
-async function validateNickname(nickname, next){
+async function validateNickname(nickname){
     const existingUser = await db.query(query.findUserByNickname, nickname);;
     const regex = /^[A-Za-z0-9._]+$/;
     if(!regex.test(nickname)){ // 정규표현식 불만족

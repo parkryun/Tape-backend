@@ -16,7 +16,7 @@ const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 //닉네임 유효성 검사
 router.post('/nickname', async (req,res)=>{
-    const nickname = req.body.SignUp.nickname;
+    const nickname = req.body.nickname;
     const result = {
         "success": false,
         "message": null,
@@ -25,9 +25,15 @@ router.post('/nickname', async (req,res)=>{
         }
     };
 
-    const errorMessage = await validateNickname(nickname);
-    if(errorMessage){
-        result.message = errorMessage;
+    try{
+        const errorMessage = await validateNickname(nickname);
+        if(errorMessage){
+            result.message = errorMessage;
+            res.json(result);
+            return;
+        }
+    } catch(error){
+        result.message = "Can't connect to database";
         res.json(result);
         return;
     }
@@ -38,12 +44,11 @@ router.post('/nickname', async (req,res)=>{
 
 //프로필 저장 및 회원가입
 router.post('/profile', upload.single('image'), async (req,res)=>{
-    const email = req.body.SignUp.email;
-    const nickname = req.body.SignUp.nickname;
-    const introduce = req.body.SignUp.introduce;
+    const email = req.body.email;
+    const nickname = req.body.nickname;
+    const introduce = req.body.introduce;
     const profileImage = req.file;
     const profileImageUrl = profileImage ? profileImage.path : null;
-
     const result = {
         "success": false,
         "message": null,
@@ -51,6 +56,7 @@ router.post('/profile', upload.single('image'), async (req,res)=>{
             "introduce": introduce
         }
     }
+
     if(introduce.length > 150){ //소개문 글자수 초과
         result.message = "소개문은 150자 이내로 작성해주세요.";
         res.json(result);
@@ -75,7 +81,6 @@ router.post('/profile', upload.single('image'), async (req,res)=>{
         res.json(result);
         return;
     }
-    console.log("test");
 
     const token = {
         isAuth: true,
@@ -87,6 +92,7 @@ router.post('/profile', upload.single('image'), async (req,res)=>{
     res.json(result);
 });
 
+//로그아웃
 router.post('/logout', async(req,res)=>{
     const result = {
         "success": true,
