@@ -27,9 +27,40 @@ const getTapeOrderbyLike = `
     tape ;
 `;
 
+const getTape = `
+    SELECT 
+    * 
+    FROM 
+    tape 
+    WHERE 
+    id = ?;
+`;
+
+const getMusic = `
+    SELECT 
+    * 
+    FROM 
+    tape_music 
+    WHERE 
+    tape_id = ?;
+`;
+
+const getComment = `
+    SELECT 
+    * 
+    FROM 
+    comment 
+    WHERE 
+    tape_id = ?;
+`;
+
 module.exports = {
     postTape: postTape,
     deleteTape: deleteTape,
     getTapePost: getTapePost,
-    getTapeOrderbyLike: getTapeOrderbyLike
+    getTapeOrderbyLike: getTapeOrderbyLike,
+    getTape: getTape,
+    getMusic: getMusic,
+    getComment: getComment
+
 }
