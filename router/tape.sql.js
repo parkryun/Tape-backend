@@ -7,6 +7,13 @@ const postTape = `
 
 const deleteTape = `
     DELETE FROM 
+    tape 
+    WHERE 
+    id = ?
+`;
+
+const deleteTapePost = `
+    DELETE FROM 
     tape_post 
     WHERE 
     id = ?
@@ -57,6 +64,7 @@ const getComment = `
 module.exports = {
     postTape: postTape,
     deleteTape: deleteTape,
+    deleteTapePost: deleteTapePost,
     getTapePost: getTapePost,
     getTapeOrderbyLike: getTapeOrderbyLike,
     getTape: getTape,
