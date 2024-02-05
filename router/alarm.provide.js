@@ -41,4 +41,4 @@ router.get("/all", authVerify, async (req, res) => {
     res.send(result) 
 })
 
-module.exports = router
+module.exports = router;
