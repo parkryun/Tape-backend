@@ -5,6 +5,30 @@ const postTape = `
     (?, ?)
 `;
 
+const postMusicLike = `
+    INSERT INTO 
+    music_like 
+    (music_id, user_id)
+    VALUES 
+    (?, ?)
+`;
+
+const postTapeMusic = `
+    INSERT INTO 
+    tape_music 
+    (tape_id, music_id, content) 
+    VALUES 
+    (?, ?)
+`;
+
+const postTodayTape = `
+    INSERT INTO 
+    tape 
+    (user_id, title, content, is_profile) 
+    VALUES 
+    (?, ?)
+`;
+
 const deleteTape = `
     DELETE FROM 
     tape 
@@ -63,6 +87,9 @@ const getComment = `
 
 module.exports = {
     postTape: postTape,
+    postMusicLike: postMusicLike,
+    postTodayTape: postTodayTape,
+    postTapeMusic: postTapeMusic,
     deleteTape: deleteTape,
     deleteTapePost: deleteTapePost,
     getTapePost: getTapePost,
