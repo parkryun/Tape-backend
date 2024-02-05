@@ -51,12 +51,12 @@ router.post("/today", async (req, res) => {
     res.send(result) 
 })
 
-// 테이프 게시물 등록 api
+// 테이프 게시물 등록 api > sql 바꾸기
 router.post("/", async (req, res) => { 
 
     const userIndex = 1
-    const tapeId = req.body.tapeId
-    const tapeIntroduce = req.body.tapeIntroduce
+    const tapeId = req.query.tapeId
+    const tapeIntroduce = req.query.tapeIntroduce
 
     const result = { 
         "success": false,
@@ -83,7 +83,39 @@ router.post("/", async (req, res) => {
         result.message = err.message 
     }
 
-    if (client) client.end() 
+    res.send(result) 
+})
+
+// 테이프 음악 좋아요 api
+router.post("/music/like", async (req, res) => { 
+
+    const userIndex = 1
+    const tapeMusicId = req.query.tapeMusicId
+
+    const result = { 
+        "success": false,
+        "message": null
+    }
+    
+    if (tapeMusicId == undefined ||
+        tapeMusicId.length == 0) 
+        {
+        result.message = "테이프 음악 정보 부적합"
+        res.send(result)
+        return
+    } // 회원정보 예외처리
+    
+    try { 
+
+        await db.getConnection
+
+        const values = [tapeMusicId, userIndex] 
+
+        await db.query(query.postMusicLike, values)
+        result.success = true 
+    } catch(err) { 
+        result.message = err.message 
+    }
 
     res.send(result) 
 })
