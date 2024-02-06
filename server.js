@@ -7,15 +7,8 @@ const router = express.Router();
 
 require("dotenv").config()
 
-const alarmApi = require("./router/alarm.provide.js")
-const followApi = require("./router/follow.services.js")
-const profileProvideApi = require("./router/profile.provide.js")
-const profileServicesApi = require("./router/profile.services.js")
-const acconutApi = require('./router/account.provider')
 const commentProvideApi = require("./router/comment.provide.js")
 const commentServiceApi = require('./router/comment.service.js')
-
-// const tapeApi = require("./router/tape.services")
 
 // app.use ---------------------------------------------------
 app.use(express.urlencoded({extended:false}));
@@ -23,19 +16,12 @@ app.use(express.json())
 
 // app.get ---------------------------------------------------
 app.use(cookieParser())
-// app.use("/alarm", alarmApi)
-// app.use("/follow", followApi)
-// app.use("/profile", profileProvideApi)
-// app.use("/profile", profileServicesApi)
-// app.use('/account', acconutApi);
-// app.use("/tape", tapeApi);
-app.get("/tape/:tapeId", commentProvideApi);
-app.all("/tape/:tapeId/comment", commentServiceApi);
-app.all("/tape/:tapeId/comment/:id", commentServiceApi);
+app.get("/tape", commentProvideApi);
+app.all("/tape/comment", commentServiceApi);
 // app.get ---------------------------------------------------
-// app.get("/", (req, res) => {
-//   res.sendFile(__dirname + "/index.html")
-// })
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html")
+})
 
 app.listen(PORT, () => {
     console.log(`${PORT} 번에서 웹 서버가 시작됨`)
