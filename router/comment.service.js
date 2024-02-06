@@ -6,78 +6,79 @@ const authVerify = require("../module/verify");
 const db = require('../data/database');
 const commentsql = require("./comment.sql");
 
-function findId(id) {
+function findIdByComment(id) {
     const values = [id]
-    const row = db.query(commentsql.comment.getId, values);
-    if (row.length > 0) {
-        return row.user_id;
-    } else {
-        return null; 
-    }
+    const userId = db.query(commentsql.comment.getIdByComment, values,(data) => {
+        return data
+    });
+    return userId;
+}
+
+function findIdByTape(id) {
+    const values = [id]
+    const userId = db.query(commentsql.comment.getIdByTape, values,(data) => {
+        return data
+    });
+    return userId;
 }
 
 // 댓글작성
 // 회원
-router.post("/tape/:tapeId/comment", authVerify ,(req, res) => { 
+router.post("/tape/:tapeId/comment", authVerify,(req, res) => { 
     const result = { 
         "success": false,
         "message": null,
         "data": []
     }
-    try {
-        const values = [req.params.tapeId, req.body.userIndex, req.body.tapeCommentContent] 
-        db.query(commentsql.comment.save, values)
+    const values = [req.params.tapeId, req.decoded.userIndex, req.body.tapeCommentContent]
+    db.query(commentsql.comment.save, values,(err)=>{
         result.success = true
-        console.log(result)   
-    } catch(err) { 
-        result.message = err.message 
-    }
+        console.log(result)
+        if(err) result.message = err.message;
+    });
     res.redirect(`/tape/${req.params.tapeId}`)   
 });
 
 // 댓글삭제
 // 테이프 작성자, 댓글 작성자
-router.delete(`tape/:tapeId/comment/:id`, authVerify, async (req, res) => { 
+router.delete("/tape/:tapeId/comment/:id", authVerify, async (req, res) => { 
     const result = { 
         "success": false,
         "message": null,
         "data": []
     }
     const params = req.params
-    const commentOwnerId = findId(params.tapeId)
-    const tapeOwnerId = findId(params.id)
+    const commentOwnerId = findIdByComment(params.id)
+    const tapeOwnerId = findIdByTape(params.id)
     if(req.decoded.userIndex === commentOwnerId || req.decoded.userIndex === tapeOwnerId){
-        try {
-            const values = [req.params.id] 
-            db.query(commentsql.comment.delete, values)
-            result.success = true 
-        } catch(err) { 
-            result.message = err.message 
-        }
-        res.redirect(`tape/:tapeId`)
+        const values = [params.id] 
+        db.query(commentsql.comment.delete, values, (err) => {
+            result.success = true
+            console.log(result)
+            if(err) result.message = err.message
+        })
+        res.redirect(`/tape/${req.params.tapeId}`)
     }
 });
 
 // 댓글수정
 // 댓글 작성자
-router.patch(`/tape/:tapeId/comment/:id`, authVerify, async (req, res) => { 
+router.patch("/tape/:tapeId/comment/:id", authVerify, async (req, res) => { 
     const result = { 
         "success": false,
         "message": null,
         "data": []
     }
-    const commentOwnerId = findId(params.id)
+    const params = req.params
+    const commentOwnerId = findIdByComment(params.id)
     if(req.decoded.userIndex === commentOwnerId){
-        try {
-            const values = [req.params.tapeId, req.decoded.userId, req.body.tapeCommentContent] 
-            db.query(commentsql.comment.save, values, (err) => {
-                if(err) result.message = err.message
-            })
-            result.success = true 
-        } catch(err) { 
-            result.message = err.message 
-        }
-        res.redirect(`tape/:tapeId`)
+        const values = [req.body.tapeCommentContent, params.id] 
+        db.query(commentsql.comment.edit, values, (err) => {
+            result.success = true
+            console.log(result)
+            if(err) result.message = err.message
+        })
+        res.redirect(`/tape/${params.tapeId}`)
     }
 });
 

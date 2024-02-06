@@ -31,7 +31,7 @@ app.use(cookieParser())
 // app.use("/tape", tapeApi);
 app.get("/tape/:tapeId", commentProvideApi);
 app.all("/tape/:tapeId/comment", commentServiceApi);
-
+app.all("/tape/:tapeId/comment/:id", commentServiceApi);
 // app.get ---------------------------------------------------
 // app.get("/", (req, res) => {
 //   res.sendFile(__dirname + "/index.html")

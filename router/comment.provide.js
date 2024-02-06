@@ -11,12 +11,14 @@ router.get("/tape/:tapeId", (req, res) => {
         "message": null,
         "data": [],
     }
+    console.log(req.query)
     try {
         const values = [req.params.tapeId]
         const data = db.query(commentsql.comment.get, values, (err,data) => {
+            result.success = true
             result.data = data
             // result.data = JSON.stringify(data)
-            console.log(result) // undefined 
+            console.log(result) 
             res.send(result) 
         })
     }catch(err){
