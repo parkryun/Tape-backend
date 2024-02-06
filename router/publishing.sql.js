@@ -57,6 +57,12 @@ const removeMusicLike = `
     WHERE user_id = ? AND music_id = ?;
 `;
 
+const getTapeMusicByTapeId = `
+    SELECT music_id, content
+    FROM tape_music
+    WHERE tape_id = ?
+`;
+
 module.exports = {
     postTape: postTape,
     deleteTape: deleteTape,
@@ -67,5 +73,6 @@ module.exports = {
     removeTapeLike: removeTapeLike,
     checkMusicLike: checkMusicLike,
     addMusicLike: addMusicLike,
-    removeMusicLike: removeMusicLike
+    removeMusicLike: removeMusicLike,
+    getTapeMusicByTapeId: getTapeMusicByTapeId
 }

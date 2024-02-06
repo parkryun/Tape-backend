@@ -1,5 +1,4 @@
 const query = require("./publishing.sql")
-
 const router = require("express").Router()
 const authVerify = require("../module/verify")
 const db = require('../data/database')
@@ -198,6 +197,37 @@ router.post("/tape/music/like/", authVerify, async (req, res) => {
         result.success = true;
     } catch (err) {
         result.message = err.message;
+    }
+
+    res.send(result);
+});
+
+// 테이프 듣기 API 
+router.get("/tape/listen", authVerify, async (req, res) => {
+    const tapId = parseInt(req.query.tapId, 10); 
+
+    const result = {
+        success: false,
+        message: "",
+        tapeMusicData: []
+    };
+
+    if (isNaN(tapId)) {
+        result.message = "tapId가 유효하지 않습니다.";
+        return res.status(400).send(result);
+    }
+
+    try {
+        const [rows] = await db.query(query.getTapeMusicByTapeId, [tapId]);
+
+        if (rows.length > 0) {
+            result.success = true;
+            result.tapeMusicData = rows;
+        } else {
+            result.message = "해당 테이프에 대한 음악 데이터가 없습니다.";
+        }
+    } catch (err) {
+        result.message = `데이터 조회 중 오류가 발생했습니다: ${err.message}`;
     }
 
     res.send(result);
