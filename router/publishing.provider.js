@@ -7,8 +7,8 @@ const db = require('../data/database')
 // 오늘의 테이프 등록 api
 router.post("/today",authVerify, async (req, res) => { 
 
-    // const userIndex = req.decoded.userIndex
-    const userIndex = 1
+    const userIndex = req.decoded.userIndex
+    // const userIndex = 1
     // const tapeImg = req.body.tapeImg
     const tapeTitle = req.body.tapeTitle
     const tapeContent = req.body.tapeContent
@@ -214,10 +214,13 @@ router.get("/tape/listen", authVerify, async (req, res) => {
 
     if (isNaN(tapId)) {
         result.message = "tapId가 유효하지 않습니다.";
-        return res.status(400).send(result);
+        return res.status(400).send(result); 
     }
 
     try {
+
+        await db.getConnection;
+
         const [rows] = await db.query(query.getTapeMusicByTapeId, [tapId]);
 
         if (rows.length > 0) {
