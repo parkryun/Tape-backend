@@ -1,4 +1,4 @@
-const updateProfile = require("./profile.sql")
+const query = require("./profile.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
 const db = require('../data/database')
@@ -6,7 +6,7 @@ const db = require('../data/database')
 // 사용자 프로필 수정 api
 router.patch("/", authVerify, async (req, res) => { 
 
-    const userIndex = req.decoded.userIndex
+    const userIndex = req.decoded.uid
     const userNickname = req.body.userNickname
     const introduce = req.body.introduce
     const profileImage = req.body.profileImage // 수정 사항
@@ -30,7 +30,7 @@ router.patch("/", authVerify, async (req, res) => {
         
         const values = [userNickname, introduce, profileImage, userIndex] 
 
-        await db.query(updateProfile, values)
+        await db.query(query.updateProfile, values)
 
         result.success = true 
     } catch(err) { 
