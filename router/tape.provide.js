@@ -6,12 +6,12 @@ const db = require('../data/database')
 // 테이프 상세 정보, 댓글 불러오기
 router.get("/", async (req, res) => { 
 
-    const tapeId = req.body.tapeId
-
     const result = { 
         "success": false,
         "message": null,
-        "tapeData": []
+        "tapeData": [],
+        "musicData": [],
+        "comment": []
     }
     
     try { 
@@ -50,7 +50,7 @@ router.get("/", async (req, res) => {
         const commentInfo = commentData[0]
  
         if (commentInfo.length > 0) { 
-            result.commentData.push(commentInfo)
+            result.comment.push(commentInfo)
         } else { 
             result.message = '댓글이 존재하지 않습니다.'
         }
@@ -65,9 +65,9 @@ router.get("/", async (req, res) => {
 })
 
 // 테이프 게시물 불러오기 api
-router.get("/post/all", async (req, res) => { 
+router.get("/post/all", authVerify, async (req, res) => { 
 
-    const userIndex = 2
+    const userIndex = req.decoded.uid
 
     const result = { 
         "success": false,
@@ -100,8 +100,9 @@ router.get("/post/all", async (req, res) => {
 })
 
 // 좋아요 순 테이프 불러오기 api
-router.get("/orderby/like", async (req, res) => { 
+router.get("/orderby/like", authVerify, async (req, res) => { 
 
+    const userIndex = req.decoded.uid
     const result = { 
         "success": false,
         "message": null,
