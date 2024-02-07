@@ -37,8 +37,6 @@ router.patch("/", authVerify, async (req, res) => {
         result.message = err.message 
     }
 
-    if (client) client.end() 
-
     res.send(result) 
 })
 
