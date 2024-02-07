@@ -1,11 +1,11 @@
-const postfollow = require("./follow.sql")
+const query = require("./follow.sql")
 const router = require("express").Router()
 const authVerify = require("../module/verify")
 const db = require('../data/database')
 
 router.post("/", authVerify, async (req, res) => { 
 
-    const userIndex = req.decoded.userIndex
+    const userIndex = req.decoded.uid
     const followerId = userIndex
     const followedId = req.body.followedId
 
@@ -13,7 +13,7 @@ router.post("/", authVerify, async (req, res) => {
         "success": false,
         "message": null,
     }
-    
+
     if (followedId == undefined || followerId == undefined || followedId.length == 0 || followerId.length == 0) {
         result.message = "회원정보 부적합"
         res.send(result)
@@ -26,14 +26,13 @@ router.post("/", authVerify, async (req, res) => {
         
         const values = [followerId, followedId] 
 
-        await db.query(postfollow, values)
+        await db.query(query.postfollow, values)
         
         result.success = true 
+        result.message = "팔로우 성공"
     } catch(err) { 
         result.message = err.message 
     }
-
-    if (client) client.end() 
 
     res.send(result) 
 })
