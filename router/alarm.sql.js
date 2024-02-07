@@ -3,7 +3,9 @@ const getAlarm = `
     * 
     FROM 
     tape_alarm 
-    WHERE id = ?;
+    WHERE user_id = ?;
 `
 
-module.exports = getAlarm
+module.exports = {
+    getAlarm: getAlarm
+}
