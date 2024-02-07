@@ -5,24 +5,23 @@ const authVerify = require("../module/verify")
 const db = require('../data/database')
 
 // 오늘의 테이프 등록 api
-router.post("/today", async (req, res) => { 
+router.post("/today", authVerify, async (req, res) => { 
 
-    // const userIndex = req.decoded.userIndex
-    const userIndex = 1
+    const userIndex = req.decoded.uid
+    
     // const tapeImg = req.body.tapeImg
     const tapeTitle = req.body.tapeTitle
     const tapeContent = req.body.tapeContent
     
     const musicId = req.body.tapeMusicData[0].musicId
-    const content = req.body.tapeMusicData[0].content
 
     const result = { 
         "success": false,
         "message": null
     }
     
-    if (tapeTitle == undefined || tapeContent == undefined || musicId == undefined || content == undefined ||
-        tapeTitle.length == 0 || tapeContent.length == 0 || musicId.length == 0 || content.length == 0) 
+    if (tapeTitle == undefined || tapeContent == undefined || musicId == undefined ||
+        tapeTitle.length == 0 || tapeContent.length == 0 || musicId.length == 0 ) 
         {
         result.message = "테이프 정보 부적합"
         res.send(result)
@@ -33,17 +32,18 @@ router.post("/today", async (req, res) => {
 
         await db.getConnection
 
-        const tapeValues = [userIndex, tapeTitle, tapeContent, false] // 이미지 추가
+        const tapeValues = [userIndex, tapeTitle, tapeContent] // 이미지 추가
         await db.query(query.postTodayTape, tapeValues)
         
         data = await db.query(`SELECT id FROM tape WHERE user_id = ${userIndex} ORDER BY created_at DESC limit 1`) // tape_id 가져오기
 
         tapeId = data[0][0].id
 
-        const musicValues = [tapeId, musicId, content] // 음악 여러개 넣는거 해야됨
+        const musicValues = [tapeId, musicId] // 음악 여러개 넣는거 해야됨
         await db.query(query.postTapeMusic, musicValues)
         
         result.success = true 
+        result.message = "테이프 등록 성공"
     } catch(err) { 
         result.message = err.message 
     }
@@ -52,9 +52,9 @@ router.post("/today", async (req, res) => {
 })
 
 // 테이프 게시물 등록 api > sql 바꾸기
-router.post("/", async (req, res) => { 
+router.post("/", authVerify, async (req, res) => { 
 
-    const userIndex = 1
+    const userIndex = req.decoded.uid
     const tapeId = req.query.tapeId
     const tapeIntroduce = req.query.tapeIntroduce
 
@@ -87,9 +87,9 @@ router.post("/", async (req, res) => {
 })
 
 // 테이프 음악 좋아요 api
-router.post("/music/like", async (req, res) => { 
+router.post("/music/like", authVerify, async (req, res) => { 
 
-    const userIndex = 1
+    const userIndex = req.decoded.uid
     const tapeMusicId = req.query.tapeMusicId
 
     const result = { 
@@ -121,9 +121,9 @@ router.post("/music/like", async (req, res) => {
 })
 
 // 테이프 삭제 api
-router.delete("/", async (req, res) => { 
+router.delete("/", authVerify, async (req, res) => { 
 
-    // const userIndex = req.decoded.userIndex
+    const userIndex = req.decoded.uid
     const tapeId = req.query.tapeId
     
     const result = { 
@@ -154,9 +154,9 @@ router.delete("/", async (req, res) => {
 })
 
 // 테이프 게시물 삭제 api
-router.delete("/post", async (req, res) => { 
+router.delete("/post", authVerify, async (req, res) => { 
 
-    const userIndex = req.decoded.userIndex
+    const userIndex = req.decoded.uid
     const tapePostId = req.query.tapePostId
 
     const result = { 

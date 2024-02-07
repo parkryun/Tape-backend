@@ -16,7 +16,7 @@ const postMusicLike = `
 const postTapeMusic = `
     INSERT INTO 
     tape_music 
-    (tape_id, music_id, content) 
+    (tape_id, music_id) 
     VALUES 
     (?, ?)
 `;
@@ -24,9 +24,9 @@ const postTapeMusic = `
 const postTodayTape = `
     INSERT INTO 
     tape 
-    (user_id, title, content, is_profile) 
+    (user_id, title, content) 
     VALUES 
-    (?, ?)
+    (?, ?, ?)
 `;
 
 const deleteTape = `
