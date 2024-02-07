@@ -2,8 +2,6 @@ const express = require("express")
 const cookieParser = require("cookie-parser")
 const path = require("path")
 const app = express()
-const PORT = process.env.PORT || 3000;
-const router = express.Router();
 
 require("dotenv").config()
 
@@ -17,7 +15,6 @@ app.use(express.json())
 // app.get ---------------------------------------------------
 app.use(cookieParser())
 app.get("/tape", commentProvideApi);
-app.all("/tape/test", commentServiceApi);
 app.all("/tape/comment", commentServiceApi);
 // app.get ---------------------------------------------------
 app.get("/", (req, res) => {

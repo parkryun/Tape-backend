@@ -4,8 +4,9 @@ const jwt = require('jsonwebtoken');
 const authVerify = require("../module/verify");
 const db = require('../data/database.js');
 const commentsql = require("./comment.sql")
-
-router.get("/tape", (req, res) => {
+//테이프 댓글 조회
+//누구나
+router.get("/tape", authVerify ,(req, res) => {
     const result = { 
         "success": false,
         "message": null,

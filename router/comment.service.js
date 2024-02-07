@@ -6,8 +6,8 @@ const authVerify = require("../module/verify");
 const db = require('../data/database');
 const commentsql = require("./comment.sql");
 
-async function findIdByComment(id) {
-    const values = [id]
+async function findIdByComment(commentId) {
+    const values = [commentId]
     return new Promise((resolve, reject) => {
         db.query(commentsql.comment.getIdByComment, values, (err, data) => {
             if(err)reject(0)
@@ -52,7 +52,6 @@ router.post("/tape/comment", authVerify, (req, res) => {
             res.send(result)
         }
     });
-    // res.redirect(`/tape/${req.params.tapeId}`)   
 });
 
 // 댓글삭제
@@ -92,7 +91,7 @@ router.patch("/tape/comment", authVerify, async (req, res) => {
         "data": []
     }
     const query = req.query
-    const commentOwnerId = await findIdByComment(query.id)
+    const commentOwnerId = await findIdByComment(query.commentid)
     if(req.decoded.userId == commentOwnerId){
         const values = [req.body.tapeCommentContent, query.commentId] 
         db.query(commentsql.comment.edit, values, (err) => {
@@ -107,15 +106,6 @@ router.patch("/tape/comment", authVerify, async (req, res) => {
         })
     }
 });
-
-router.get("/tape/test", async (req,res) => {
-    const query = req.query
-    const commentOwnerId = await findIdByComment(16)
-    const tapeOwnerId = await findIdByTape(16)
-    console.log(commentOwnerId)
-    console.log(tapeOwnerId)
-})
-
 
 
 module.exports = router
