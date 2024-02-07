@@ -5,7 +5,7 @@ const comment = {
     edit : "UPDATE comment SET content = ? WHERE id = ?;",
     delete : "DELETE FROM comment WHERE id = ?",
     getIdByComment : "SELECT user_id FROM comment WHERE id = ?;",
-    getIdByTape : "SELECT tape.user_id FROM comment INNER JOIN tape ON comment.tape_id = tape.id WHERE comment.id = ? ;"
+    getIdByTape : "SELECT tape.user_id FROM comment JOIN tape ON comment.tape_id = tape.id WHERE comment.id = ? ;"
 }
 module.exports = {
     comment

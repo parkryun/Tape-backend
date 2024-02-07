@@ -17,6 +17,7 @@ app.use(express.json())
 // app.get ---------------------------------------------------
 app.use(cookieParser())
 app.get("/tape", commentProvideApi);
+app.all("/tape/test", commentServiceApi);
 app.all("/tape/comment", commentServiceApi);
 // app.get ---------------------------------------------------
 app.get("/", (req, res) => {
