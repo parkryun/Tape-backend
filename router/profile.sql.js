@@ -2,14 +2,30 @@ const getProfile = `
     SELECT 
     nickname, profileImageurl, introduce 
     FROM 
-    user 
+    User 
     WHERE id = ?
 `;
 // 데이터 추가
 
+const getFollower = `
+    SELECT 
+    COUNT(*) AS followers 
+    FROM 
+    relation 
+    WHERE followed_id = ?
+`;
+
+const getFollowing = `
+    SELECT 
+    COUNT(*) AS followings 
+    FROM 
+    relation 
+    WHERE follower_id = ?
+`;
+
 const updateProfile = `
     UPDATE 
-    user 
+    User 
     SET 
     nickname = ?, introduce = ?, profileImageurl = ? 
     WHERE id = ?
@@ -17,5 +33,7 @@ const updateProfile = `
 
 module.exports = {
     getProfile: getProfile,
-    updateProfile: updateProfile
+    updateProfile: updateProfile,
+    getFollowing: getFollowing,
+    getFollower: getFollower
 }
