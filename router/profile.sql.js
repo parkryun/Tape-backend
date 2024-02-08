@@ -2,7 +2,7 @@ const getProfile = `
     SELECT 
     nickname, profileImageurl, introduce 
     FROM 
-    User 
+    user 
     WHERE id = ?
 `;
 // 데이터 추가
