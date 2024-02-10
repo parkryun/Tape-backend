@@ -102,4 +102,14 @@ router.post('/logout', async(req,res)=>{
     res.json(result);
 });
 
+/** --------------test-------------- */
+router.post('/getToken', async(req,res)=>{
+    const token = {
+        isAuth: true,
+        uid: 1,
+    }
+    const test = jwt.sign(token, SECRET_KEY);
+    res.cookie("token", test);
+    res.json(test);
+})
 module.exports = router;

@@ -16,7 +16,6 @@ router.get("/all", authVerify, async (req, res) => {
     }
     
     try { 
-        await db.getConnection
         
         const values = [userIndex] 
 

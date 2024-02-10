@@ -31,9 +31,16 @@ const updateProfile = `
     WHERE id = ?
 `;
 
+const getTapeById = `
+    SELECT id AS tapeId, tapeimageUrl AS tapeImage
+    FROM tape
+    WHERE user_id = ?
+`
+
 module.exports = {
     getProfile: getProfile,
     updateProfile: updateProfile,
     getFollowing: getFollowing,
-    getFollower: getFollower
+    getFollower: getFollower,
+    getTapeById: getTapeById
 }
