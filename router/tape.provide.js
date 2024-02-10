@@ -5,7 +5,7 @@ const db = require('../data/database')
 
 // 테이프 상세 정보, 댓글 불러오기
 router.get("/", async (req, res) => { 
-
+    const tapeId = req.query.tapeId;
     const result = { 
         "success": false,
         "message": null,
@@ -15,7 +15,6 @@ router.get("/", async (req, res) => {
     }
     
     try { 
-        await db.getConnection
         
         // 테이브 정보 가져오기
         const tapeValues = [tapeId] 
@@ -110,9 +109,7 @@ router.get("/orderby/like", authVerify, async (req, res) => {
     }
     
     try { 
-        await db.getConnection
         
-
         const data = await db.query(getTapeOrderbyLike)
         
         const row = data[0]

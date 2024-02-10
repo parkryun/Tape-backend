@@ -9,7 +9,7 @@ router.patch("/", authVerify, async (req, res) => {
     const userIndex = req.decoded.uid
     const userNickname = req.body.userNickname
     const introduce = req.body.introduce
-    const profileImage = req.body.profileImage // 수정 사항
+    const profileImage = req.body.profileImage // 사진 보류
 
     const result = { 
         "success": false,
@@ -17,7 +17,7 @@ router.patch("/", authVerify, async (req, res) => {
     }
     
     if (userNickname == undefined || introduce == undefined || profileImage == undefined ||
-        userNickname.length == 0 || introduce.length == 0 || profileImage.length == 0) 
+        userNickname.length == 0 || introduce.length == 0) 
         {
         result.message = "회원정보 부적합"
         res.send(result)
@@ -26,8 +26,6 @@ router.patch("/", authVerify, async (req, res) => {
     
     try { 
 
-        await db.getConnection
-        
         const values = [userNickname, introduce, profileImage, userIndex] 
 
         await db.query(query.updateProfile, values)

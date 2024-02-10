@@ -6,7 +6,13 @@ const postfollow = `
     VALUES 
     (?, ?)
 `
+const deletefollow = `
+    DELETE 
+    FROM relation
+    WHERE follower_id = ? AND followed_id = ?
+`
 
 module.exports = {
-    postfollow: postfollow
+    postfollow: postfollow,
+    deletefollow: deletefollow
 }
