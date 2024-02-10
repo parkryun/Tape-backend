@@ -2,6 +2,7 @@ const router = require("express").Router();
 const insertHiddenTapeQuery = require("./hidden.sql.js");
 const pool = require("../data/database.js");
 
+// 테이프 안보기
 router.post('/', async(req, res) => {
     const tapeId = req.body.tapeId;
     const userId = req.body.userId;

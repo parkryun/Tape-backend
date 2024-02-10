@@ -3,9 +3,10 @@ const router = require("express").Router();
 const authVerify = require("../module/verify.js");
 const pool = require("../data/database.js");
 
-router.get("/", async (req, res) => {
-    const userId = req.query.userId;
-    // const userId = req.decoded.uid;
+// 오늘의 테이프 불러오기 (본인)
+router.get("/", authVerify, async (req, res) => {
+    // const userId = req.query.userId;
+     const userId = req.decoded.uid;
     
     const result = {
         success: false,
@@ -42,11 +43,11 @@ router.get("/", async (req, res) => {
     res.send(result);
 });
 
+// 오늘의 테이프 불러오기 (친구)
+router.get("/friends", authVerify, async (req, res) => {
 
-router.get("/friends",  async (req, res) => {
-
-    //const userId = req.decoded.uid;
-    const userId = req.query.userId;
+    const userId = req.decoded.uid;
+    //const userId = req.query.userId;
     const cursor = req.query.cursor;
     const limit = 4;
 
@@ -61,9 +62,10 @@ router.get("/friends",  async (req, res) => {
         const conn = await pool.getConnection();
 
         const [followedUsers] = await pool.query(query.getFollowedUsers, userId);
-        const f = followedUsers.map(user => user.followed_id);
+        
+        const friendsId = followedUsers.map(user => user.followed_id);
 
-        if(f.length === 0){
+        if(friendsId.length === 0){
             result.message = "팔로우하는 친구가 없습니다";
             res.send(result);
             conn.release();
@@ -72,9 +74,8 @@ router.get("/friends",  async (req, res) => {
 
         let cursorQuery = query.getCursorByLastTapeId;
        
-        const [friendsTape] = await pool.query(cursorQuery, [f,cursor,limit]);
+        const [friendsTape] = await pool.query(cursorQuery, [friendsId,cursor,limit]);
        
-
         if(friendsTape.length > 0) {
     
             const isWatched = await conn.query(query.getWatchedTape, userId);
@@ -94,7 +95,7 @@ router.get("/friends",  async (req, res) => {
             result.success = true;
         
         }else{ 
-           result.message = "팔로우하는 친구가 없습니다";
+           result.message = "다음 게시물이 없습니다.";
         }
 
     }catch(err){
