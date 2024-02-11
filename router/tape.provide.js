@@ -131,7 +131,9 @@ router.get("/orderby/like", authVerify, async (req, res) => {
 
 // 오늘의 테이프 불러오기 (본인)
 router.get("/user", authVerify, async (req, res) => {
+
     const userId = req.decoded.uid;
+
     const result = {
        success: false,
        message: null,
@@ -146,7 +148,7 @@ router.get("/user", authVerify, async (req, res) => {
 
        if (myTape.length > 0) {
         
-           const [user] = await conn.query(query.getUser, userId);
+           const [user] = await db.query(query.getUser, userId);
            
            const myTapeData = myTape.map(t => ({
                userName: user[0].name,
@@ -171,6 +173,7 @@ router.get("/user", authVerify, async (req, res) => {
 
 // 오늘의 테이프 불러오기 (친구)
 router.get("/friends", authVerify, async (req, res) => {
+    
    const userId = req.decoded.uid;
    const cursor = req.query.cursor;
    const limit = 4;

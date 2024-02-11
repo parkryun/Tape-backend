@@ -121,7 +121,7 @@ const getFollowedUsers = `
 const getFriendsTape = `
     SELECT tape.id, user.nickname, user.profileimageurl, tape.title, tape.content, tape.tapeimageurl
     FROM tape
-    JOIN user ON tape.user_id = User.id
+    JOIN user ON tape.user_id = user.id
     WHERE tape.user_id IN (?) AND tape.created_at >= NOW()- INTERVAL 1 DAY
     ORDER BY tape.created_at DESC
     LIMIT ?;
@@ -129,7 +129,7 @@ const getFriendsTape = `
 const getCursorByLastTapeId = `
     SELECT tape.id, user.nickname, user.profileimageurl, tape.title, tape.content, tape.tapeimageurl
     FROM tape
-    JOIN user ON tape.user_id = User.id
+    JOIN user ON tape.user_id = user.id
     WHERE tape.user_id IN (?) AND tape.id > ?
     ORDER BY tape.created_at DESC
     LIMIT ?;
