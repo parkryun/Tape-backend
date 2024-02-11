@@ -19,7 +19,7 @@ require("dotenv").config()
 // const acconutProviderApi = require('./router/account.provider')
 // const kakaoRegisterApi = require('./router/kakao.account.js');
 
- const createSessionConfig = require('./config/session');
+const createSessionConfig = require('./config/session');
 
 // // app.use ---------------------------------------------------
 const sessionConfig = createSessionConfig();
