@@ -1,3 +1,18 @@
-const postfollow = "INSERT INTO relation VALUES ($1, $2)"
+const postfollow = `
+    INSERT 
+    INTO 
+    relation 
+    (follower_id, followed_id)
+    VALUES 
+    (?, ?)
+`
+const deletefollow = `
+    DELETE 
+    FROM relation
+    WHERE follower_id = ? AND followed_id = ?
+`
 
-module.exports = postfollow
+module.exports = {
+    postfollow: postfollow,
+    deletefollow: deletefollow
+}

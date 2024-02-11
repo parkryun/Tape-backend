@@ -231,3 +231,4 @@ router.get("/friends", authVerify, async (req, res) => {
 );
 
 module.exports = router;
+

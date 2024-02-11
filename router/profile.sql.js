@@ -1,9 +1,46 @@
-const getProfile = "SELECT nickname, profileImageurl, introduce FROM User WHERE id = $1"
+const getProfile = `
+    SELECT 
+    nickname, profileImageurl, introduce 
+    FROM 
+    user 
+    WHERE id = ?
+`;
 // 데이터 추가
 
-const updateProfile = "UPDATE User SET nickname = $1, introduce = $2, profileImageurl = $3 WHERE id = $4"
+const getFollower = `
+    SELECT 
+    COUNT(*) AS followers 
+    FROM 
+    relation 
+    WHERE followed_id = ?
+`;
+
+const getFollowing = `
+    SELECT 
+    COUNT(*) AS followings 
+    FROM 
+    relation 
+    WHERE follower_id = ?
+`;
+
+const updateProfile = `
+    UPDATE 
+    User 
+    SET 
+    nickname = ?, introduce = ?, profileImageurl = ? 
+    WHERE id = ?
+`;
+
+const getTapeById = `
+    SELECT id AS tapeId, tapeimageUrl AS tapeImage
+    FROM tape
+    WHERE user_id = ?
+`
 
 module.exports = {
-    getProfile,
-    updateProfile
+    getProfile: getProfile,
+    updateProfile: updateProfile,
+    getFollowing: getFollowing,
+    getFollower: getFollower,
+    getTapeById: getTapeById
 }

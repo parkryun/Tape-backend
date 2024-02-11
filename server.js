@@ -8,38 +8,39 @@ const expressSession = require('express-session');
 
 require("dotenv").config()
 
-// const alarmApi = require("./router/alarm.provide.js")
-// const followApi = require("./router/follow.services.js")
-// const profileProvideApi = require("./router/profile.provide.js")
-// const profileServicesApi = require("./router/profile.services.js")
-// const tapeServicesApi = require("./router/tape.services.js")
- const tapeProvideApi = require("./router/tape.provide.js")
- const hiddenApi = require("./router/hidden.service.js")
-// // const musicProvideApi = require("./router/music.provide.js")
-// const acconutProviderApi = require('./router/account.provider')
-// const kakaoRegisterApi = require('./router/kakao.account.js');
-
+// // app.use ---------------------------------------------------
+const alarmApi = require("./router/alarm.provide.js")
+const followApi = require("./router/follow.services.js")
+const profileProvideApi = require("./router/profile.provide.js")
+const profileServicesApi = require("./router/profile.services.js")
+const tapeServicesApi = require("./router/tape.services.js")
+const tapeProvideApi = require("./router/tape.provide.js")
+const hiddenApi = require("./router/hidden.service.js")
+// const musicProvideApi = require("./router/music.provide.js")
+const acconutProviderApi = require('./router/account.provider')
+const kakaoRegisterApi = require('./router/kakao.account.js');
 const createSessionConfig = require('./config/session');
 
-// // app.use ---------------------------------------------------
+// app.use ---------------------------------------------------
+
 const sessionConfig = createSessionConfig();
 app.use(expressSession(sessionConfig));
 app.use(express.urlencoded({extended:false}));
 app.use(express.json())
 app.use(cookieParser())
 
-// app.use("/alarm", alarmApi)
-// app.use("/follow", followApi)
-// app.use("/profile", profileProvideApi)
-// app.use("/profile", profileServicesApi)
-// app.use("/tape", tapeServicesApi)
- app.use("/tape", tapeProvideApi)
+app.use("/alarm", alarmApi)
+app.use("/follow", followApi)
+app.use("/profile", profileProvideApi)
+app.use("/profile", profileServicesApi)
+app.use("/tape", tapeServicesApi)
+app.use("/tape", tapeProvideApi)
 app.use("/hidden", hiddenApi);
-// // app.use("/music", musicProvideApi)
-// app.use('/account', acconutProviderApi);
-// app.use("/kakao", kakaoRegisterApi);
+// app.use("/music", musicProvideApi)
+app.use('/account', acconutProviderApi);
+app.use("/kakao", kakaoRegisterApi);
 
-// // app.get ---------------------------------------------------
+// app.get ---------------------------------------------------
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html")
 })

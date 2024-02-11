@@ -97,8 +97,8 @@ module.exports = {
     getTape: getTape,
     getMusic: getMusic,
     getComment: getComment
-
 }
+
 const getUser = `
     SELECT *
     FROM user
