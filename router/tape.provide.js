@@ -5,17 +5,16 @@ const db = require('../data/database')
 
 // 테이프 상세 정보, 댓글 불러오기
 router.get("/", async (req, res) => { 
-
-    const tapeId = req.body.tapeId
-
+    const tapeId = req.query.tapeId;
     const result = { 
         "success": false,
         "message": null,
-        "tapeData": []
+        "tapeData": [],
+        "musicData": [],
+        "comment": []
     }
     
     try { 
-        await db.getConnection
         
         // 테이브 정보 가져오기
         const tapeValues = [tapeId] 
@@ -50,7 +49,7 @@ router.get("/", async (req, res) => {
         const commentInfo = commentData[0]
  
         if (commentInfo.length > 0) { 
-            result.commentData.push(commentInfo)
+            result.comment.push(commentInfo)
         } else { 
             result.message = '댓글이 존재하지 않습니다.'
         }
@@ -65,9 +64,9 @@ router.get("/", async (req, res) => {
 })
 
 // 테이프 게시물 불러오기 api
-router.get("/post/all", async (req, res) => { 
+router.get("/post/all", authVerify, async (req, res) => { 
 
-    const userIndex = 2
+    const userIndex = req.decoded.uid
 
     const result = { 
         "success": false,
@@ -100,8 +99,9 @@ router.get("/post/all", async (req, res) => {
 })
 
 // 좋아요 순 테이프 불러오기 api
-router.get("/orderby/like", async (req, res) => { 
+router.get("/orderby/like", authVerify, async (req, res) => { 
 
+    const userIndex = req.decoded.uid
     const result = { 
         "success": false,
         "message": null,
@@ -109,9 +109,7 @@ router.get("/orderby/like", async (req, res) => {
     }
     
     try { 
-        await db.getConnection
         
-
         const data = await db.query(getTapeOrderbyLike)
         
         const row = data[0]
@@ -131,5 +129,109 @@ router.get("/orderby/like", async (req, res) => {
     res.send(result) 
 })
 
+// 오늘의 테이프 불러오기 (본인)
+router.get("/user", authVerify, async (req, res) => {
 
-module.exports = router
+    const userId = req.decoded.uid;
+
+    const result = {
+       success: false,
+       message: null,
+       data: []
+    };
+    
+    try {
+    
+    await db.getConnection();
+      
+    const [myTape] = await db.query(query.getMyTape, userId);
+
+       if (myTape.length > 0) {
+        
+           const [user] = await db.query(query.getUser, userId);
+           
+           const myTapeData = myTape.map(t => ({
+               userName: user[0].name,
+               userProfileImage: user[0].profileimageurl,
+               tapeId: t.id,
+               title: t.title,
+               artist: t.content,
+               image: t.tapeimageurl
+           }));
+               result.data = myTapeData;
+       } else {
+           result.message = "등록된 나의 테이프가 없습니다.";
+       }
+       result.success = true;
+
+
+   } catch (err) {
+       result.message = err.message;
+   }
+   res.send(result);
+});
+
+// 오늘의 테이프 불러오기 (친구)
+router.get("/friends", authVerify, async (req, res) => {
+    
+   const userId = req.decoded.uid;
+   const cursor = req.query.cursor;
+   const limit = 4;
+
+   const result = {
+       success: false,
+       message: null,
+       data: []
+   }
+
+   try{
+
+       await db.getConnection();
+
+       const [followedUsers] = await db.query(query.getFollowedUsers, userId);
+       
+       const friendsId = followedUsers.map(user => user.followed_id);
+
+       if(friendsId.length === 0){
+           result.message = "팔로우하는 친구가 없습니다";
+           res.send(result);
+           conn.release();
+           return;
+       }
+
+       let cursorQuery = query.getCursorByLastTapeId;
+      
+       const [friendsTape] = await db.query(cursorQuery, [friendsId,cursor,limit]);
+      
+       if(friendsTape.length > 0) {
+   
+           const isWatched = await db.query(query.getWatchedTape, userId);
+
+           const friendsTapeData = friendsTape.map((tape)=> ({
+               userName: tape.nickname,
+               userProfileImage: tape.profileimageurl,
+               tapeId: tape.id,
+               title: tape.title,
+               artist: tape.content,
+               image: tape.tapeimageurl,
+               isWatched: isWatched.some(w => w.tape_id === tape.id)
+           }));
+
+           result.data = friendsTapeData;
+           result.success = true;
+       
+       }else{ 
+          result.message = "다음 게시물이 없습니다.";
+       }
+
+   }catch(err){
+       result.message = err.message
+   }
+   res.send(result);
+  
+}
+
+);
+
+module.exports = router;
+
