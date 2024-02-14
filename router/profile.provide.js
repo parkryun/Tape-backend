@@ -13,7 +13,6 @@ router.get("/", authVerify, async (req, res) => {
         "data": { }
 
     }
-    
     try { 
         const values = [userIndex] 
 
