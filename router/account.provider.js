@@ -86,7 +86,8 @@ router.post('/profile', upload.single('image'), async (req,res)=>{
         isAuth: true,
         uid: getUserId[0][0].id,
     }
-    res.cookie("token", jwt.sign(token, SECRET_KEY));
+    result.data.token = jwt.sign(token, SECRET_KEY);
+    // res.cookie("token", jwt.sign(token, SECRET_KEY));
     
     result.success = true;
     res.json(result);
