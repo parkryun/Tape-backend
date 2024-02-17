@@ -20,6 +20,8 @@ const hiddenApi = require("./router/hidden.service.js")
 const acconutProviderApi = require('./router/account.provider')
 const kakaoRegisterApi = require('./router/kakao.account.js');
 const createSessionConfig = require('./config/session');
+const commentProvideApi = require("./router/comment.provide.js")
+const commentServiceApi = require('./router/comment.service.js')
 
 // app.use ---------------------------------------------------
 
@@ -40,11 +42,13 @@ app.use("/hidden", hiddenApi);
 app.use('/account', acconutProviderApi);
 app.use("/kakao", kakaoRegisterApi);
 
+app.get("/tape", commentProvideApi);
+app.all("/tape/comment", commentServiceApi);
 // app.get ---------------------------------------------------
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html")
 })
 
-app.listen(port, () => {
-    console.log(`${port} 번에서 웹 서버가 시작됨`)
+app.listen(PORT, () => {
+    console.log(`${PORT} 번에서 웹 서버가 시작됨`)
 })
