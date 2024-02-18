@@ -41,7 +41,8 @@ router.get('/callback', async (req,res) => {
             isAuth: true,
             uid: user[0][0].id,
         }
-        res.cookie("token", jwt.sign(token, process.env.JWT_SECRET_KEY));
+        result.data.token = jwt.sign(token, process.env.JWT_SECRET_KEY)
+        // res.cookie("token", jwt.sign(token, process.env.JWT_SECRET_KEY));
         result.data.isSignin = true;
         res.json(result);
         return;
