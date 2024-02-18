@@ -6,14 +6,13 @@ const db = require('../data/database')
 // 사용자 프로필 불러오기 api
 router.get("/", authVerify, async (req, res) => { 
 
-    const userIndex = req.decoded.uid
+    const userIndex = req.decoded.uid;
     const result = { 
         "success": false,
         "message": null,
         "data": { }
 
     }
-    
     try { 
         const values = [userIndex] 
 
@@ -40,7 +39,7 @@ router.get("/", authVerify, async (req, res) => {
         result.data.followers = followerRow;
         result.data.followings = followingRow;
         
-        result.data.tapeData = tapeData[0][0]; //사진은 보류
+        result.data.tapeData = tapeData[0]; //사진은 보류
 
         result.success = true 
     } catch(err) { 
