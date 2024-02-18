@@ -25,7 +25,7 @@ const getFollowing = `
 
 const updateProfile = `
     UPDATE 
-    User 
+    user 
     SET 
     nickname = ?, introduce = ?, profileImageurl = ? 
     WHERE id = ?
@@ -36,6 +36,8 @@ const getTapeById = `
     FROM tape
     WHERE user_id = ?
 `
+
+
 
 module.exports = {
     getProfile: getProfile,
