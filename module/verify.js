@@ -9,8 +9,7 @@ const authVerify = async (req, res, next) => {
     }
 
     try {
-        console.log(req.cookies);
-        console.log(req.headers.authorization.split(' ')[1]);
+        // console.log(req.headers.authorization.split(' ')[1]);
         const authToken = req.headers.authorization.split(' ')[1];
         if (authToken == undefined) { // 존재하지 않는 토큰 예외
             throw new Error("토큰이 존재하지 않습니다.")
