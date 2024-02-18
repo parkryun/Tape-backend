@@ -4,8 +4,8 @@ const authVerify = require("../module/verify")
 const db = require('../data/database')
 
 // 사용자 프로필 수정 api
-router.patch("/", authVerify, async (req, res) => { 
-
+router.put("/", authVerify, async (req, res) => { 
+    
     const userIndex = req.decoded.uid
     const userNickname = req.body.userNickname
     const introduce = req.body.introduce
@@ -16,7 +16,7 @@ router.patch("/", authVerify, async (req, res) => {
         "message": null
     }
     
-    if (userNickname == undefined || introduce == undefined || profileImage == undefined ||
+    if (userNickname == undefined || introduce == undefined ||
         userNickname.length == 0 || introduce.length == 0) 
         {
         result.message = "회원정보 부적합"
@@ -31,6 +31,7 @@ router.patch("/", authVerify, async (req, res) => {
         await db.query(query.updateProfile, values)
 
         result.success = true 
+        result.message = "회원정보 수정 완료"
     } catch(err) { 
         result.message = err.message 
     }
