@@ -49,6 +49,7 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html")
 })
 
-app.listen(PORT, () => {
-    console.log(`${PORT} 번에서 웹 서버가 시작됨`)
-})
+
+app.listen(port, () => {
+    console.log(`${port} 번에서 웹 서버가 시작됨`)
+}) 
